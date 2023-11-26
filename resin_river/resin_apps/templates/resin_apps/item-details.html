@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{post.slug}}{% endblock title %}
+
+{% block content %}
+    <h2>{{post.name}}</h2>
+    <section>
+        <img src="{{post.image1.url}}" alt="{{post.name}}">
+    </section>
+    <section id="smaller-image">
+        <ul>
+            {% if post.image2 %}
+            <li><img src="{{post.image2.url}}" alt=""></li>
+            {% else %}
+            <li>No picture available</li>
+            {% endif %}
+
+            {% if post.image3 %}
+            <li><img src="{{post.image3.url}}" alt=""></li>
+            {% else %}
+            <li>No picture available</li>
+            {% endif %}        
+        </ul>
+    </section>
+        <section id="describe">
+            <p>{{post.description}}</p>
+            <span>{{post.price}}</span>
+        </section>
+{% endblock content %}

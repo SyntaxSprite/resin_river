@@ -1,0 +1,39 @@
+<h2>Latest Posts</h2>
+        {% for post in latest_posts %}
+            <ul>
+            <li><a href="{% url "item-details" post.slug%}">
+            {{ post.name }}</a></li> 
+            {% if post.image1 %}
+            <a href="{% url "item-details" post.slug%}"><img src="{{ post.image1.url }}" alt="Image 1"></a>
+            {% elif post.image2 %}
+                <img src="{{ post.image2.url }}" alt="Image 2">
+            {% elif post.image3 %}
+                <img src="{{ post.image3.url }}" alt="Image 3">
+            {% else %}
+                <p>No image available</p>
+            {% endif %}
+                <span>{{post.price}}</span>
+                <p>{{post.description}}</p>
+                <p>{{post.created_at}}</p>
+            </ul>
+        {% endfor %}
+    
+
+    <h2>Featured Posts</h2>
+    {% for post in featured_posts %}
+        <ul>
+        <li><a href="{% url "item-details" post.slug%}">
+            {{ post.name }} - {{ post.created_at }}</a></li> 
+            {% if post.image1 %}
+                <img src="{{ post.image1.url }}" alt="Image 1">
+            {% elif post.image2 %}
+                <img src="{{ post.image2.url }}" alt="Image 2">
+            {% elif post.image3 %}
+                <img src="{{ post.image3.url }}" alt="Image 3">
+            {% else %}
+                <p>No image available</p>
+            {% endif %}
+         <span>{{post.price}}</span>
+         
+        </ul>
+    {% endfor %}

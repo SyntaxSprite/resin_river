@@ -1,11 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h2>Hello world!</h2>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Resin App{% endblock title %}
+
+
+{% block content %}
+<section id="items-listings">
+    {% include "resin_apps/include/items.html" %}
+</section>
+{% endblock content %}  
+
+
