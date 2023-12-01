@@ -139,7 +139,7 @@ def signup(request):
         form = SignupForm(request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/login/')
+        return HttpResponseRedirect('/login/')
     else:
         form = SignupForm()
         context = {
