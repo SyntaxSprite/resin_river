@@ -26,4 +26,41 @@
             <p>{{post.description}}</p>
             <span>{{post.price}}</span>
         </section>
+    <section class="add-to-cart">
+        <form action="{% url "cart-list" %}", method="POST">
+            {% csrf_token %}
+            <input type="hidden", name="post_id", value="{{post.id}}" >
+            <button type="submit", class="add-to-cart-button">Add To Cart</button>
+        </form>
+        <script>
+            $('.add-to-cart-button').click(function(event) {
+                // Prevent the default form submission
+                event.preventDefault();
+
+                // Get the post_id from the hidden input inside the form
+                var post_id = $('input[name="post_id"]').val();
+
+                // Send a POST request to your AddToCart view
+                $.post('/add-to-cart-ajax/', { post_id: post_id }, function(response) {
+                    if (response.success) {
+                        alert('Item added to cart!');
+                        updateMiniCart();
+
+                        window.location.href = '/cart-list/'; 
+                    } else {
+                        alert('Failed to add item to cart.');
+                    }
+                });
+            });
+
+            function updateMiniCart() {
+                $.get('/get-mini-cart-ajax/', function(cartData) {
+                    $('.mini-cart').html(cartData);
+                    window.location.href = '/cart-list/';  // Redirect to the cart-list page
+                });
+            }
+            
+        </script>
+        
+    </section>
 {% endblock content %}

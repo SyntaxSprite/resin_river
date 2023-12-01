@@ -10,6 +10,10 @@ class Tag(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=200)
 
+    class Meta:
+        verbose_name_plural = 'Categories'
+
+
     def __str__(self):
         return self.name
 
@@ -41,6 +45,10 @@ class Items(models.Model):
     available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     slug = models.SlugField(default="", unique=True, null=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = 'Items'
 
     def __str__(self):
         return self.name

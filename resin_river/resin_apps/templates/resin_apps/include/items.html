@@ -1,39 +1,53 @@
-<h2>Latest Posts</h2>
+<h2 class="mb-5 font-semibold text-gray-500">Latest Posts</h2>
+    <div class="grid grid-cols-3 gap-3">
         {% for post in latest_posts %}
             <ul>
-            <li><a href="{% url "item-details" post.slug%}">
+            <li class="text-2xl"><a href="{% url "item-details" post.slug%}">
             {{ post.name }}</a></li> 
             {% if post.image1 %}
-            <a href="{% url "item-details" post.slug%}"><img src="{{ post.image1.url }}" alt="Image 1"></a>
-            {% elif post.image2 %}
-                <img src="{{ post.image2.url }}" alt="Image 2">
-            {% elif post.image3 %}
-                <img src="{{ post.image3.url }}" alt="Image 3">
+            <a href="{% url "item-details" post.slug%}">
+            <img src="{{ post.image1.url }}" class="rounded-t-xl" alt="Image 1"></a>
+            
             {% else %}
                 <p>No image available</p>
             {% endif %}
-                <span>{{post.price}}</span>
-                <p>{{post.description}}</p>
-                <p>{{post.created_at}}</p>
+                <span"text-gray-500">{{post.price}}</span>
+                <section class="px-3 py-3 text-lg font-semibold bg-gray-500 text-white rounded-xl hover:bg-gray-700">
+                    <form action="{% url "add-to-cart" %}", method="POST">
+                        {% csrf_token %}
+                        <input type="hidden", name="post_id", value="{{post.id}}" >
+                        <button type="submit", class="add-to-cart-button">Add To Cart</button>
+                    </form>
+               </section>
             </ul>
+            
+
+            
         {% endfor %}
+    </div>
     
 
-    <h2>Featured Posts</h2>
-    {% for post in featured_posts %}
+    <h2 class="mt-5 mb-5 font-semibold text-gray-500">Featured Posts</h2>
+    <div class="grid grid-cols-3 gap-3">
+        {% for post in featured_posts %}
         <ul>
-        <li><a href="{% url "item-details" post.slug%}">
-            {{ post.name }} - {{ post.created_at }}</a></li> 
+            <li class="text-2xl"><a href="{% url "item-details" post.slug%}">
+            {{ post.name }}</a></li> 
             {% if post.image1 %}
-                <img src="{{ post.image1.url }}" alt="Image 1">
-            {% elif post.image2 %}
-                <img src="{{ post.image2.url }}" alt="Image 2">
-            {% elif post.image3 %}
-                <img src="{{ post.image3.url }}" alt="Image 3">
+            <a href="{% url "item-details" post.slug%}">
+            <img src="{{ post.image1.url }}" class="rounded-t-xl" alt="Image 1"></a>
+            
             {% else %}
                 <p>No image available</p>
             {% endif %}
-         <span>{{post.price}}</span>
-         
-        </ul>
+                <span"text-gray-500">{{post.price}}</span>
+                <section class="px-3 py-3 text-lg font-semibold bg-gray-500 text-white rounded-xl hover:bg-gray-700">
+                    <form action="{% url "add-to-cart" %}", method="POST">
+                        {% csrf_token %}
+                        <input type="hidden", name="post_id", value="{{post.id}}" >
+                        <button type="submit", class="add-to-cart-button">Add To Cart</button>
+                    </form>
+               </section>
+            </ul>
     {% endfor %}
+    </div>
