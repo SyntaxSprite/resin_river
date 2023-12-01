@@ -1,4 +1,5 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from .models import Items
 from django.views import View
 from django.http import HttpResponseRedirect, JsonResponse
@@ -46,6 +47,8 @@ class ItemDetails(View):
     
     
 
+
+# @login_required
 class WishList(View):
     def get(self, request):
         wish_list = request.session.get('wish_list', [])
@@ -109,6 +112,7 @@ class CartList(View):
 
 
 
+# @login_required
 class Checkout(View):
     def get(self, request):
         cart_list = request.session.get('cart_list', [])
@@ -139,13 +143,16 @@ def signup(request):
         form = SignupForm(request.POST)
         if form.is_valid():
             form.save()
-        return HttpResponseRedirect('/login/')
+            return redirect('/login/')
+        else:
+            # Print form errors to the console for debugging
+            print(form.errors)
     else:
         form = SignupForm()
-        context = {
-                    'form' : form
-                }
-    return render(request, 'resin_apps/signup.html', context)
-        
+
+    return render(request, 'resin_apps/signup.html', {
+        'form': form
+    })
+      
         
            

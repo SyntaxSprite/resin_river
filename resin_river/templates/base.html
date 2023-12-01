@@ -5,15 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>{% block tite %}{% endblock tite %}</title>
+    <title>{% block title %}{% endblock title %}</title>
 </head>
 <body>
     <nav class="py-6 px-6 flex justify-between items-center border-b border-gray-200">
         <a href="/" class="text-xl font-semibold">Resin River</a>
 
         <div class="space-x-6">
+            {% if request.user.is_authenticated %}
+            <a href="#"><i class="fa-solid fa-user-tie-hair" style="color: #133e2c;"></i></a>
+            <a href="{%url "logout"%}" class="px-6 py-3 text-lg font-semibold bg-red-500 text-white rounded-xl hover:bg-red-700">Logout</a>
+            {% else %}
             <a href="{% url "sign-up" %}" class="px-6 py-3 text-lg font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Sign Up</a>
-            <a href="#" class="px-6 py-3 text-lg font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Login</a></nav>
+            <a href="{% url "login" %}" class="px-6 py-3 text-lg font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Login</a>
+            {% endif %}
+        </div>
+        </nav>
         <div class="px-6 py-6">
         {% block content %}
         {% endblock content %}
