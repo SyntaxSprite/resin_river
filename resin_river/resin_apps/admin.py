@@ -4,7 +4,7 @@ from.models import Tag, Category, Items
 
 class ItemsAdmin(admin.ModelAdmin):
     list_display = ('name', 'price', 'Category',)
-    list_filter = ('Category','price',)
+    list_filter = ('Category','price','Tag',)
     prepopulated_fields = {'slug':('name',)}
 
 

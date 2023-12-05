@@ -11,12 +11,12 @@
             {% else %}
                 <p>No image available</p>
             {% endif %}
-                <span"text-gray-500">{{post.price}}</span>
-                <section class="px-3 py-3 text-lg font-semibold bg-gray-500 text-white rounded-xl hover:bg-gray-700">
+            <span class="text-gray-500 mt-3 mb-3"><strong>Price: </strong>{{post.price}}</span>
+                <section >
                     <form action="{% url "add-to-cart" %}", method="POST">
                         {% csrf_token %}
                         <input type="hidden", name="post_id", value="{{post.id}}" >
-                        <button type="submit", class="add-to-cart-button">Add To Cart</button>
+                        <button type="submit", class="btn btn-outline-dark position-relative">Add To Cart</button>
                     </form>
                </section>
             </ul>
@@ -40,14 +40,14 @@
             {% else %}
                 <p>No image available</p>
             {% endif %}
-                <span"text-gray-500">{{post.price}}</span>
-                <section class="px-3 py-3 text-lg font-semibold bg-gray-500 text-white rounded-xl hover:bg-gray-700">
-                    <form action="{% url "add-to-cart" %}", method="POST">
-                        {% csrf_token %}
-                        <input type="hidden", name="post_id", value="{{post.id}}" >
-                        <button type="submit", class="add-to-cart-button">Add To Cart</button>
-                    </form>
-               </section>
+            <span class="text-gray-500 mt-3 mb-3"><strong>Price: </strong>{{post.price}}</span>
+            <section >
+                <form action="{% url "add-to-cart" %}", method="POST">
+                    {% csrf_token %}
+                    <input type="hidden", name="post_id", value="{{post.id}}" >
+                    <button type="submit", class="btn btn-outline-dark position-relative">Add To Cart</button>
+                </form>
+           </section>
             </ul>
     {% endfor %}
     </div>

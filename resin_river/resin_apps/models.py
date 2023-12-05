@@ -47,7 +47,7 @@ class Items(models.Model):
     slug = models.SlugField(default="", unique=True, null=True)
     
     class Meta:
-        ordering = ['-created_at']
+        
         verbose_name_plural = 'Items'
 
     def __str__(self):

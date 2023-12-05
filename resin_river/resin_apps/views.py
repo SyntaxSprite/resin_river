@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Items
+from .models import Items, Category
 from django.views import View
 from django.http import HttpResponseRedirect, JsonResponse
 from .forms import SignupForm
@@ -8,8 +8,8 @@ from .forms import SignupForm
 # Create your views here.
 
 def startingpage(request):
-    latest_posts = Items.objects.all().order_by('created_at')[:3]
-    featured_posts = Items.objects.filter(Tag__caption='Featured')[:3]
+    latest_posts = Items.objects.all().order_by('-created_at')[0:3]
+    featured_posts = Items.objects.filter(Tag__caption='Featured').order_by('-created_at')[0:3]
 
     context = {
         'latest_posts': latest_posts,
@@ -19,12 +19,15 @@ def startingpage(request):
     return render (request, 'resin_apps/index.html', context)
 
 
+
 class ItemDetails(View):
     def get(self, request, slug):
         post = Items.objects.get(slug=slug)
+        related_items = Items.objects.filter(Category=post.Category).exclude(slug=slug)[:3]
         context = {
             'post':post,
-            'post_tag': post.Tag.all()
+            'post_tag': post.Tag.all(),
+            'related_items': related_items
         }
         return render(request, 'resin_apps/item-details.html', context)
     
@@ -101,14 +104,7 @@ class CartList(View):
         
         return render(request,'resin_apps/cart-list.html', context)
         
-    def post(self, request):
-        post_id = request.POST.get('post_id')
-        cart_list = request.session.get('cart_list', [])
-        if post_id not in cart_list:
-            cart_list.append(post_id)
-            request.session['cart_list'] = cart_list
-            request.session.modified = True
-        return HttpResponseRedirect(request.path)
+    
 
 
 
@@ -154,5 +150,6 @@ def signup(request):
         'form': form
     })
       
+    
         
            
