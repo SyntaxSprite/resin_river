@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 # Create your models here.
 
@@ -52,3 +53,42 @@ class Items(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Cart(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cart')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Cart({self.user.username})"
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    item = models.ForeignKey(Items, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('cart', 'item')
+
+    def __str__(self):
+        return f"{self.item.name} x {self.quantity}"
+
+
+class HomeHero(models.Model):
+    title = models.CharField(max_length=200)
+    subtitle = models.TextField(blank=True)
+    image = models.ImageField(upload_to='hero/')
+    cta_text = models.CharField(max_length=100, blank=True)
+    cta_url = models.CharField(max_length=255, blank=True)
+    is_active = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Homepage Hero'
+        verbose_name_plural = 'Homepage Hero'
+
+    def __str__(self):
+        return self.title

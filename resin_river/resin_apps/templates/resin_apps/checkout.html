@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout{% endblock title %}
+
+{% block content %}
+<h2>Checkout</h2>
+
+{% if has_post %}
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <h3 class="text-xl font-semibold mb-2">Order Summary</h3>
+      <table class="w-full">
+        <thead>
+          <tr>
+            <th class="text-left">Item</th>
+            <th class="text-right">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for item in post %}
+          <tr>
+            <td>{{ item.name }}</td>
+            <td class="text-right">{{ item.price }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td class="text-right"><strong>Subtotal:</strong></td>
+            <td class="text-right"><strong>{{ subtotal }}</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div>
+      <h3 class="text-xl font-semibold mb-2">Shipping & Contact</h3>
+      <form method="post" action="{% url 'payment' %}" class="space-y-3">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">Proceed to payment</button>
+      </form>
+    </div>
+  </div>
+{% else %}
+  <p class="text-gray-600">Your cart is empty.</p>
+  <a class="inline-flex items-center gap-2 border border-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100" href="{% url 'index' %}">Continue shopping</a>
+{% endif %}
+
+{% endblock content %}
+
+

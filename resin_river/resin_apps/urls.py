@@ -9,6 +9,7 @@ urlpatterns = [
     path('add-to-cart', views.AddToCart.as_view(),name='add-to-cart'),
     path('wish-list', views.WishList.as_view(), name='wish-list'),
     path('checkout', views.Checkout.as_view(), name='checkout'),
+    path('payment', views.Payment.as_view(), name='payment'),
     path('cart-list', views.CartList.as_view(), name='cart-list'),
     path('sign-up', views.signup, name='sign-up'),
     path('login/',auth_views.LoginView.as_view(template_name='resin_apps/login.html', authentication_form=LoginForm), name='login'),

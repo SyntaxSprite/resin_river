@@ -1,53 +1,74 @@
-<h2 class="mb-5 font-semibold text-gray-500">Latest Posts</h2>
-    <div class="grid grid-cols-3 gap-3">
-        {% for post in latest_posts %}
-            <ul>
-            <li class="text-2xl"><a href="{% url "item-details" post.slug%}">
-            {{ post.name }}</a></li> 
-            {% if post.image1 %}
-            <a href="{% url "item-details" post.slug%}">
-            <img src="{{ post.image1.url }}" class="rounded-t-xl" alt="Image 1"></a>
-            
-            {% else %}
-                <p>No image available</p>
-            {% endif %}
-            <span class="text-gray-500 mt-3 mb-3"><strong>Price: </strong>{{post.price}}</span>
-                <section >
-                    <form action="{% url "add-to-cart" %}", method="POST">
+<h2 class="mb-5 font-semibold text-gray-800 text-2xl">Latest Posts</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for post in latest_posts_page %}
+        <div class="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-shadow duration-300 overflow-hidden border border-gray-100">
+            <a href="{% url 'item-details' post.slug %}" class="block relative">
+                {% if post.image1 %}
+                <div class="relative overflow-hidden h-56">
+                    <img src="{{ post.image1.url }}" alt="{{ post.name }}" class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105">
+                    <span class="absolute top-3 left-3 inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-black/60 text-white backdrop-blur-sm">New</span>
+                    <span class="absolute bottom-3 right-3 inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-yellow-400 text-black">{{ post.price }}</span>
+                </div>
+                {% else %}
+                <div class="h-56 bg-gray-100 flex items-center justify-center text-gray-400">No image available</div>
+                {% endif %}
+            </a>
+            <div class="p-5">
+                <h3 class="text-lg font-semibold text-gray-900 mb-1 line-clamp-1">
+                    <a href="{% url 'item-details' post.slug %}" class="hover:text-yellow-600 transition-colors">{{ post.name }}</a>
+                </h3>
+                <p class="text-sm text-gray-600 line-clamp-2 min-h-[2.5rem]">{{ post.description }}</p>
+                <div class="mt-4 flex items-center justify-between">
+                    <a href="{% url 'item-details' post.slug %}" class="text-sm font-medium text-gray-700 hover:text-yellow-600 inline-flex items-center gap-2">
+                        View details <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                    </a>
+                    <form action="{% url 'add-to-cart' %}" method="POST">
                         {% csrf_token %}
-                        <input type="hidden", name="post_id", value="{{post.id}}" >
-                        <button type="submit", class="btn btn-outline-dark position-relative">Add To Cart</button>
+                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <button type="submit" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 active:scale-95 transition-transform">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            <span class="text-sm">Add</span>
+                        </button>
                     </form>
-               </section>
-            </ul>
-            
-
-            
+                </div>
+            </div>
+        </div>
         {% endfor %}
     </div>
     
 
-    <h2 class="mt-5 mb-5 font-semibold text-gray-500">Featured Posts</h2>
-    <div class="grid grid-cols-3 gap-3">
+    <h2 class="mt-10 mb-5 font-semibold text-gray-800 text-2xl">Featured Posts</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for post in featured_posts %}
-        <ul>
-            <li class="text-2xl"><a href="{% url "item-details" post.slug%}">
-            {{ post.name }}</a></li> 
-            {% if post.image1 %}
-            <a href="{% url "item-details" post.slug%}">
-            <img src="{{ post.image1.url }}" class="rounded-t-xl" alt="Image 1"></a>
-            
-            {% else %}
-                <p>No image available</p>
-            {% endif %}
-            <span class="text-gray-500 mt-3 mb-3"><strong>Price: </strong>{{post.price}}</span>
-            <section >
-                <form action="{% url "add-to-cart" %}", method="POST">
-                    {% csrf_token %}
-                    <input type="hidden", name="post_id", value="{{post.id}}" >
-                    <button type="submit", class="btn btn-outline-dark position-relative">Add To Cart</button>
-                </form>
-           </section>
-            </ul>
+        <div class="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-shadow duration-300 overflow-hidden border border-gray-100">
+            <a href="{% url 'item-details' post.slug %}" class="block relative">
+                {% if post.image1 %}
+                <div class="relative overflow-hidden h-56">
+                    <img src="{{ post.image1.url }}" alt="{{ post.name }}" class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105">
+                    <span class="absolute bottom-3 right-3 inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-yellow-400 text-black">{{ post.price }}</span>
+                </div>
+                {% else %}
+                <div class="h-56 bg-gray-100 flex items-center justify-center text-gray-400">No image available</div>
+                {% endif %}
+            </a>
+            <div class="p-5">
+                <h3 class="text-lg font-semibold text-gray-900 mb-1 line-clamp-1">
+                    <a href="{% url 'item-details' post.slug %}" class="hover:text-yellow-600 transition-colors">{{ post.name }}</a>
+                </h3>
+                <div class="mt-4 flex items-center justify-between">
+                    <a href="{% url 'item-details' post.slug %}" class="text-sm font-medium text-gray-700 hover:text-yellow-600 inline-flex items-center gap-2">
+                        View details <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                    </a>
+                    <form action="{% url 'add-to-cart' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <button type="submit" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 active:scale-95 transition-transform">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            <span class="text-sm">Add</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     {% endfor %}
     </div>

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Payment{% endblock title %}
+
+{% block content %}
+<h2>Payment</h2>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div>
+    <h3 class="text-xl font-semibold mb-2">Order Total</h3>
+    <p><strong>Subtotal:</strong> {{ subtotal }}</p>
+  </div>
+
+  <div>
+    <h3 class="text-xl font-semibold mb-2">Contact & Shipping</h3>
+    <p>{{ checkout.full_name }}<br/>
+       {{ checkout.email }}<br/>
+       {% if checkout.phone %}{{ checkout.phone }}<br/>{% endif %}
+       {{ checkout.address_line1 }}{% if checkout.address_line2 %}, {{ checkout.address_line2 }}{% endif %}<br/>
+       {{ checkout.city }}{% if checkout.state %}, {{ checkout.state }}{% endif %} {{ checkout.postal_code }}
+    </p>
+
+    <form method="post" action="{% url 'payment' %}" class="mt-2">
+      {% csrf_token %}
+      <input type="hidden" name="confirm" value="1" />
+      <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Pay now (mock)</button>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}
+
+

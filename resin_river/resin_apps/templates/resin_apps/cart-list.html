@@ -3,16 +3,28 @@
 {% block title %}Your Cart List{% endblock title %}
 
 {% block content %}
-    <h2>Your Cart</h2>
-    {% if has_post %}
-        <ul>
-            {% for post in posts %}
-            <li>{{ post.name }} - {{ post.price }}</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-    <p>Your Cart is empty</p>
-    {% endif %}
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-2xl font-semibold mb-4">Your Cart</h2>
+      {% if has_post %}
+        <div class="divide-y divide-gray-200 bg-white rounded-lg shadow">
+          {% for post in posts %}
+            <div class="flex items-center justify-between p-4">
+              <div>
+                <p class="font-medium">{{ post.name }}</p>
+                <p class="text-sm text-gray-500">Price: {{ post.price }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="mt-4 flex justify-end gap-3">
+          <a href="{% url 'checkout' %}" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">Proceed to Checkout</a>
+        </div>
+      {% else %}
+        <p class="text-gray-600">Your Cart is empty</p>
+      {% endif %}
 
-    <a href="{% url "index" %}">Go Back To Shopping</a>
+      <div class="mt-6">
+        <a href="{% url 'index' %}" class="inline-flex items-center gap-2 border border-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100">Go Back To Shopping</a>
+      </div>
+    </div>
 {% endblock content %}

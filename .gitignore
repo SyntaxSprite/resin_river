@@ -1,0 +1,31 @@
+# Bytecode
+**/__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+.venv/
+env/
+.env
+
+# OS generated files #
+.DS_Store
+Thumbs.db
+
+# Django specific #
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-*
+
+# Static and media files #
+/static/*
+!/static/.gitkeep
+/media/*
+!/media/.gitkeep
+
+# VSCode settings
+.vscode/
+
+# Markdown files
+*.md

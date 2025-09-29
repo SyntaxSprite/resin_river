@@ -3,134 +3,73 @@
 {% block title %}{{post.slug}}{% endblock title %}
 
 {% block content %}
-<div class="grid grid-cols-5 gap-6">
-    <div class="col-span-3">
-        <img src="{{post.image1.url}}" class="rounded-xl" id="mainImage">
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+  <!-- Gallery -->
+  <div class="lg:col-span-3">
+    <div class="overflow-hidden rounded-2xl shadow">
+      <img src="{{ post.image1.url }}" class="w-full h-[420px] object-cover" id="mainImage">
+    </div>
 
-        <section class="grid grid-cols-4 gap-4" >
-            
-                {% if post.image2 %}
-                <div class="mt-6 mb-6" "col-span-1">
-                    <a href="#" onclick="changeMainImage('{{post.image2.url}}'); return false;">
-                        <img src="{{post.image2.url}}" class="rounded-xl">
-                    </a>
-                </div>
-                {% else %}
-                <div class="mt-3 mb-3">
-                    <p class="text-red-500">No picture available</p>
-                </div>
-                {% endif %}
-        
-                {% if post.image3 %}
-                <div class="mt-6 mb-6" "col-span-1">
-                    <a href="#" onclick="changeMainImage('{{post.image3.url}}'); return false;">
-                        <img src="{{post.image3.url}}" class="rounded-xl">
-                    </a>
-                </div>
-                {% else %}
-                <div class="mt-3 mb-3">
-                    <p class="text-red-500">No picture available</p>
-                </div>
-                {% endif %}
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      {% if post.image2 %}
+      <button class="rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-yellow-500" onclick="changeMainImage('{{ post.image2.url }}')">
+        <img src="{{ post.image2.url }}" class="w-full h-28 object-cover hover:opacity-90 transition">
+      </button>
+      {% endif %}
+      {% if post.image3 %}
+      <button class="rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-yellow-500" onclick="changeMainImage('{{ post.image3.url }}')">
+        <img src="{{ post.image3.url }}" class="w-full h-28 object-cover hover:opacity-90 transition">
+      </button>
+      {% endif %}
+    </div>
+  </div>
 
-                
+  <!-- Details -->
+  <section class="lg:col-span-2 p-6 bg-white rounded-2xl shadow">
+    <h1 class="mb-2 text-2xl font-semibold text-gray-900">{{ post.name }}</h1>
+    <p class="text-sm text-gray-600 mb-4">{{ post.description }}</p>
+    <div class="text-lg font-semibold text-gray-900 mb-6">Price: {{ post.price }}</div>
+
+    <form action="{% url 'add-to-cart' %}" method="POST" class="mt-2">
+      {% csrf_token %}
+      <input type="hidden" name="post_id" value="{{ post.id }}">
+      <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 active:scale-95 transition-transform">
+        <i class="fa-solid fa-cart-plus"></i>
+        Add To Cart
+      </button>
+    </form>
+  </section>
+</div>
+
+<!-- Related items -->
+<div class="mt-10">
+  <h2 class="mb-5 text-2xl font-semibold text-gray-900">Related items</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for item in related_items %}
+    <div class="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-shadow duration-300 overflow-hidden border border-gray-100">
+      <a href="{% url 'item-details' item.slug %}" class="block">
+        <div class="relative overflow-hidden h-48">
+          {% if item.image1 %}
+          <img src="{{ item.image1.url }}" class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105">
+          {% else %}
+          <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">No image</div>
+          {% endif %}
+        </div>
+        <div class="p-5">
+          <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ item.name }}</h3>
+          <p class="text-sm text-gray-600">Price: {{ item.price }}</p>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
 
 <script>
-    // Define the changeMainImage function in the global scope
-    function changeMainImage(newSrc) {
-        document.getElementById('mainImage').src = newSrc;
-    }
-
-    // Attach click event handlers after the DOM has fully loaded
-    document.addEventListener("DOMContentLoaded", function() {
-        // Attach click event handlers to your images
-        var mainImage = document.getElementById('mainImage');
-        var image2 = document.getElementById('image2');
-        var image3 = document.getElementById('image3');
-
-        if (mainImage) {
-            mainImage.addEventListener('click', function() {
-                changeMainImage(mainImage.src);
-            });
-        }
-
-        if (image2) {
-            image2.addEventListener('click', function() {
-                changeMainImage(image2.src);
-            });
-        }
-
-        if (image3) {
-            image3.addEventListener('click', function() {
-                changeMainImage(image3.src);
-            });
-        }
-    });
+  function changeMainImage(src) {
+    const el = document.getElementById('mainImage');
+    if (!el) return;
+    el.src = src;
+  }
 </script>
-
-            
-        </section>
-        
-</div>
-        <section class="col-span-2 p-6 bg-gray-100 rounded-xl">
-            <strong class="mb-6 text-3xl">{{post.name}}</strong>
-            <p class="text-gray-700 mt-3 mb-3">
-                <strong class="text-gray-500 ">Description</strong> <br>
-                {{post.description}}</p>
-            <span class="text-gray-500"><strong>Price: </strong>{{post.price}}</span>
-        
-    <section class="mt-6 mb-6">
-        <form id="addToCartForm" data-url="{% url 'add-to-cart' %}">
-            {% csrf_token %}
-            <input type="hidden" name="post_id" value="{{ post.id }}">
-            <button type="button" class="btn btn-outline-dark position-relative">Add To Cart</button>
-        </form>
-        <script>
-            $('#addToCartForm').on('submit', function(event) {
-                // Prevent the default form submission
-                event.preventDefault();
-
-                $.ajax({
-                    type: 'POST',
-                    url: '{% url "add-to-cart" %}',
-                    data: {
-                        post_id : $('#addToCartForm').val()
-                    },
-                })
-            
-            
-                // Send a POST request to your AddToCart view
-                $.post($(this).data('url'), { post_id: post_id }, function(response) {
-                    if (response.success) {
-                        alert('Item added to cart!');
-                        updateMiniCart();
-                    } else {
-                        alert('Failed to add item to cart.');
-                    }
-                });
-            });
-            
-        </script>
-     </section>
-</section>
-<div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
-    <h2 class="mb-12 text-2xl text-center">Related items</h2>
-
-    <div class="grid grid-cols-3 gap-3">
-        {% for item in related_items %}
-            <div>
-                <a href="{% url 'item-details' item.slug %}">
-                    <div>
-                        <img src="{{ item.image.url }}" class="rounded-t-xl">
-                    </div>
-
-                    <div class="p-6 bg-white rounded-b-xl">
-                        <h2 class="text-2xl">{{ item.name }}</h2>
-                        <p class="text-gray-500">Price: {{ item.price }}</p>
-                    </div>
-                </a>
-            </div>
-        {% endfor %}
-    </div>
-</div>
 {% endblock content %}
