@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Order Confirmation - {{ order.order_number }} - Resin River{% endblock title %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Success Message -->
+    <div class="text-center mb-8">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-check text-4xl text-green-600"></i>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-bold text-black mb-2">Thank You for Your Order!</h1>
+        <p class="text-gray-600">Your order has been confirmed and we've sent you a confirmation email.</p>
+    </div>
+    
+    <!-- Order Information Card -->
+    <div class="bg-white border border-gray-200 rounded-lg p-6 md:p-8 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <p class="text-sm font-semibold text-gray-700 mb-1">Order Number</p>
+                <p class="text-2xl font-bold text-black">{{ order.order_number }}</p>
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-gray-700 mb-1">Order Date</p>
+                <p class="text-lg text-black">{{ order.created_at|date:"F d, Y" }}</p>
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-gray-700 mb-1">Order Status</p>
+                <p class="text-lg font-semibold text-blue-600">{{ order.get_status_display }}</p>
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-gray-700 mb-1">Payment Status</p>
+                <p class="text-lg font-semibold {% if order.payment_status == 'paid' %}text-green-600{% else %}text-yellow-600{% endif %}">
+                    {{ order.get_payment_status_display }}
+                </p>
+            </div>
+        </div>
+        
+        <div class="border-t border-gray-200 pt-6">
+            <h2 class="text-xl font-bold text-black mb-4">Order Items</h2>
+            <div class="space-y-4">
+                {% for order_item in order.items.all %}
+                <div class="flex gap-4">
+                    <div class="flex-shrink-0">
+                        {% if order_item.item and order_item.item.image1 %}
+                        <img src="{{ order_item.item.image1.url }}" alt="{{ order_item.item_name }}" class="w-24 h-24 object-cover rounded">
+                        {% else %}
+                        <div class="w-24 h-24 bg-gray-100 rounded flex items-center justify-center">
+                            <i class="fas fa-image text-gray-400"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-semibold text-black mb-1">{{ order_item.item_name|upper }}</h3>
+                        <p class="text-sm text-gray-600 mb-2">Quantity: {{ order_item.quantity }}</p>
+                        <p class="text-lg font-bold text-black">${{ order_item.subtotal|floatformat:2 }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Order Totals -->
+    <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-bold text-black mb-4">Order Summary</h2>
+        <div class="space-y-3 mb-4">
+            <div class="flex justify-between text-sm text-gray-700">
+                <span>Subtotal</span>
+                <span class="font-semibold">${{ order.subtotal|floatformat:2 }}</span>
+            </div>
+            <div class="flex justify-between text-sm text-gray-700">
+                <span>Shipping</span>
+                <span class="font-semibold">${{ order.shipping_cost|floatformat:2 }}</span>
+            </div>
+            <div class="flex justify-between text-sm text-gray-700">
+                <span>Tax</span>
+                <span class="font-semibold">${{ order.tax_amount|floatformat:2 }}</span>
+            </div>
+            {% if order.discount_amount > 0 %}
+            <div class="flex justify-between text-sm text-green-600">
+                <span>Discount</span>
+                <span class="font-semibold">-${{ order.discount_amount|floatformat:2 }}</span>
+            </div>
+            {% endif %}
+        </div>
+        <div class="border-t border-gray-200 pt-4">
+            <div class="flex justify-between items-baseline">
+                <span class="text-lg font-semibold text-gray-700">Total</span>
+                <span class="text-3xl font-bold text-black">${{ order.total|floatformat:2 }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delivery Information -->
+    <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-bold text-black mb-4">Delivery Information</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <p class="text-sm font-semibold text-gray-700 mb-2">Delivery Address</p>
+                <div class="text-sm text-gray-600 space-y-1">
+                    <p>{{ order.delivery_first_name }} {{ order.delivery_last_name }}</p>
+                    <p>{{ order.delivery_address }}</p>
+                    <p>{{ order.delivery_city }}, {{ order.delivery_state }} {{ order.delivery_postal_code }}</p>
+                    <p>{{ order.delivery_country }}</p>
+                    <p class="mt-2">{{ order.delivery_phone }}</p>
+                </div>
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-gray-700 mb-2">Contact</p>
+                <div class="text-sm text-gray-600">
+                    <p>{{ order.contact_email_phone }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Information -->
+    {% if order.payment_method %}
+    <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-bold text-black mb-4">Payment Method</h2>
+        <p class="text-lg font-semibold text-black">{{ order.payment_method.display_name }}</p>
+        {% if order.payment_transaction_id %}
+        <p class="text-sm text-gray-600 mt-2">Transaction ID: {{ order.payment_transaction_id }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <!-- Actions -->
+    <div class="flex flex-col sm:flex-row gap-4">
+        <a href="{% url 'shop' %}" class="flex-1 text-center px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition-colors">
+            Continue Shopping
+        </a>
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'order-history' %}" class="flex-1 text-center px-6 py-3 bg-gray-200 text-black font-semibold rounded-lg hover:bg-gray-300 transition-colors">
+            View Order History
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}
+

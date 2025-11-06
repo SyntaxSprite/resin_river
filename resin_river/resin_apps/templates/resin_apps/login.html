@@ -3,32 +3,72 @@
 {% block title %}Login{% endblock title %}
 
 {% block content %}
-<h1 class="mb-6 text-3xl">Login</h1>
+<div class="w-full max-w-md my-6 mx-auto p-6 bg-gray-100 rounded-xl">
+    <h1 class="mb-6 text-3xl font-bold">Login</h1>
 
-<form method="post" action="{% url "login" %}">
-    {% csrf_token %}
+    <form method="post" action="{% url "login" %}" id="login-form">
+        {% csrf_token %}
 
-    <div class="mb-3">
-        <label class="inline-block mb-2">Username</label><br>
-        {{ form.username }}
-    </div>
+        <div class="mb-4">
+            <label for="{{ form.username.id_for_label }}" class="block mb-2 font-medium">Username</label>
+            {{ form.username }}
+            <span class="text-red-600 text-sm hidden" id="username-error"></span>
+        </div>
 
-    <div class="mb-3">
-        <label class="inline-block mb-2">Password</label><br>
-        {{ form.password }}
-    </div>
-    
-    {% if form.errors or form.non_field_errors %}
-    <div class="mb-3 p-6 bg-red-100 rounded-xl">
-        {% for field in form %}
-            {{ field.errors }}
-        {% endfor %}
+        <div class="mb-4">
+            <label for="{{ form.password.id_for_label }}" class="block mb-2 font-medium">Password</label>
+            {{ form.password }}
+            <span class="text-red-600 text-sm hidden" id="password-error"></span>
+        </div>
+        
+        {% if form.errors or form.non_field_errors %}
+        <div class="mb-4 p-4 bg-red-100 rounded-xl border border-red-300" role="alert">
+            {% for field in form %}
+                {% if field.errors %}
+                    <p class="text-red-700 text-sm mb-1">{{ field.label }}: {{ field.errors|first }}</p>
+                {% endif %}
+            {% endfor %}
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <p class="text-red-700 text-sm mb-1">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+        {% endif %}
 
-        {{ form.non_field_errors }}
-    </div>
-{% endif %}
-
-<button class="py-4 px-8 text-lg bg-teal-500 hover:bg-teal-700 rounded-xl text-white">Submit</button>
-</form>
+        <button type="submit" class="w-full py-4 px-8 text-lg bg-teal-500 hover:bg-teal-700 rounded-xl text-white font-semibold transition-colors">Submit</button>
+    </form>
 </div>
+
+<script>
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    let isValid = true;
+    
+    // Username validation
+    const username = document.getElementById('{{ form.username.id_for_label }}').value.trim();
+    const usernameError = document.getElementById('username-error');
+    if (username.length === 0) {
+        usernameError.textContent = 'Username is required.';
+        usernameError.classList.remove('hidden');
+        isValid = false;
+    } else {
+        usernameError.classList.add('hidden');
+    }
+    
+    // Password validation
+    const password = document.getElementById('{{ form.password.id_for_label }}').value;
+    const passwordError = document.getElementById('password-error');
+    if (password.length === 0) {
+        passwordError.textContent = 'Password is required.';
+        passwordError.classList.remove('hidden');
+        isValid = false;
+    } else {
+        passwordError.classList.add('hidden');
+    }
+    
+    if (!isValid) {
+        e.preventDefault();
+    }
+});
+</script>
 {% endblock content %}

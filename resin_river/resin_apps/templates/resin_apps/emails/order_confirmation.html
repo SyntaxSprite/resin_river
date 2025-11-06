@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #000;
+            margin: 0;
+            font-size: 28px;
+        }
+        .order-info {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+        }
+        .order-info h2 {
+            color: #000;
+            margin-top: 0;
+            font-size: 20px;
+        }
+        .order-details {
+            margin: 20px 0;
+        }
+        .order-details table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .order-details th,
+        .order-details td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .order-details th {
+            background-color: #f9f9f9;
+            font-weight: bold;
+        }
+        .order-total {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #000;
+        }
+        .order-total .total {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #000;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ site_name }}</h1>
+            <p>Order Confirmation</p>
+        </div>
+        
+        <div class="order-info">
+            <h2>Thank You for Your Order!</h2>
+            <p>Your order has been confirmed and we've received your order details. We'll send you another email when your order ships.</p>
+        </div>
+        
+        <div class="order-details">
+            <h2>Order Details</h2>
+            <p><strong>Order Number:</strong> {{ order.order_number }}</p>
+            <p><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y g:i A" }}</p>
+            <p><strong>Order Status:</strong> {{ order.get_status_display }}</p>
+            <p><strong>Payment Status:</strong> {{ order.get_payment_status_display }}</p>
+            
+            <h3 style="margin-top: 20px;">Order Items</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                    <tr>
+                        <td>{{ item.item_name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>${{ item.item_price|floatformat:2 }}</td>
+                        <td>${{ item.subtotal|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <div class="order-total">
+                <p><strong>Subtotal:</strong> ${{ order.subtotal|floatformat:2 }}</p>
+                <p><strong>Shipping:</strong> ${{ order.shipping_cost|floatformat:2 }}</p>
+                <p><strong>Tax:</strong> ${{ order.tax_amount|floatformat:2 }}</p>
+                {% if order.discount_amount > 0 %}
+                <p><strong>Discount:</strong> -${{ order.discount_amount|floatformat:2 }}</p>
+                {% endif %}
+                <p class="total">Total: ${{ order.total|floatformat:2 }}</p>
+            </div>
+        </div>
+        
+        <div class="order-details">
+            <h3>Delivery Address</h3>
+            <p>
+                {{ order.delivery_first_name }} {{ order.delivery_last_name }}<br>
+                {{ order.delivery_address }}<br>
+                {{ order.delivery_city }}, {{ order.delivery_state }} {{ order.delivery_postal_code }}<br>
+                {{ order.delivery_country }}<br>
+                Phone: {{ order.delivery_phone }}
+            </p>
+        </div>
+        
+        {% if order.user %}
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="{{ site_url }}{% url 'order-detail' order.id %}" class="button">View Order Details</a>
+        </div>
+        {% endif %}
+        
+        <div class="footer">
+            <p>If you have any questions about your order, please contact us.</p>
+            <p>&copy; {{ order.created_at|date:"Y" }} {{ site_name }}. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -1,60 +1,326 @@
 {% extends "base.html" %}
-{% block title %}Resin App{% endblock title %}
-
+{% load static %}
+{% block title %}Resin River - Custom Resin Furniture & Art{% endblock title %}
 
 {% block content %}
+<!-- Hero Section -->
 {% if hero %}
-<section class="relative overflow-hidden rounded-xl mb-8">
-  <img src="{{ hero.image.url }}" alt="Hero" class="w-full h-64 md:h-96 object-cover">
-  <div class="absolute inset-0 bg-black/40"></div>
-  <div class="absolute inset-0 flex items-center">
-    <div class="px-6 md:px-10 text-white max-w-3xl">
-      <h1 class="text-2xl md:text-4xl font-bold mb-2">{{ hero.title }}</h1>
-      {% if hero.subtitle %}<p class="text-sm md:text-base mb-4">{{ hero.subtitle }}</p>{% endif %}
-      {% if hero.cta_text and hero.cta_url %}
-      <a href="{{ hero.cta_url }}" class="inline-block px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">{{ hero.cta_text }}</a>
-      {% endif %}
+<section class="relative w-full h-[60vh] md:h-[80vh] overflow-hidden bg-gradient-to-br from-orange-200 to-pink-200">
+    <div class="absolute inset-0">
+        {% if hero.image %}
+        <img src="{{ hero.image.url }}" alt="{{ hero.title }}" class="w-full h-full object-cover opacity-90">
+        {% endif %}
+        <div class="absolute inset-0 bg-black/20"></div>
     </div>
-  </div>
+    <div class="relative h-full flex items-center justify-center md:justify-start">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div class="max-w-2xl text-white">
+                <p class="text-sm md:text-base mb-2 uppercase tracking-wider">NEW ARRIVALS</p>
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-4">{{ hero.title|default:"REFRESH YOUR SPACE" }}</h1>
+                {% if hero.subtitle %}
+                <p class="text-base md:text-lg mb-6 text-white/90">{{ hero.subtitle }}</p>
+                {% else %}
+                <p class="text-base md:text-lg mb-6 text-white/90">The latest drops from our Weekly Selection.</p>
+                {% endif %}
+                <div class="flex flex-col sm:flex-row gap-4">
+                    {% if hero.cta_text and hero.cta_url %}
+                    <a href="{{ hero.cta_url }}" class="inline-flex items-center justify-center px-8 py-3 bg-white text-black border-2 border-black font-semibold hover:bg-gray-100 transition-colors rounded-full">
+                        {{ hero.cta_text }}
+                    </a>
+                    {% else %}
+                    <a href="{% url 'index' %}" class="inline-flex items-center justify-center px-8 py-3 bg-white text-black border-2 border-black font-semibold hover:bg-gray-100 transition-colors rounded-full">
+                        SHOP NOW
+                    </a>
+                    {% endif %}
+                    {% if hero.cta2_text and hero.cta2_url %}
+                    <a href="{{ hero.cta2_url }}" class="inline-flex items-center justify-center px-8 py-3 bg-black text-white border-2 border-black font-semibold hover:bg-gray-900 transition-colors rounded-full">
+                        {{ hero.cta2_text }}
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 {% endif %}
-<section id="items-listings">
-    {% include "resin_apps/include/items.html" %}
 
-    <nav aria-label="Pagination" class="mt-8">
-      <div class="flex items-center justify-between">
-        <div class="text-sm text-gray-600">
-          Page <span class="font-semibold">{{ latest_posts_page.number }}</span> of <span class="font-semibold">{{ latest_posts_page.paginator.num_pages }}</span>
-          • <span class="font-semibold">{{ latest_posts_page.paginator.count }}</span> items
+<!-- Category Navigation -->
+{% if featured_categories %}
+<section class="py-6 border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-center gap-6 md:gap-12 overflow-x-auto pb-2">
+            {% for category in featured_categories %}
+            <a href="{% url 'shop' %}?category={{ category.id }}" class="text-lg md:text-xl font-bold text-black whitespace-nowrap hover:opacity-70">{{ category.name|upper }}</a>
+            {% endfor %}
         </div>
-        <div class="flex items-center gap-3">
-          {% if latest_posts_page.has_previous %}
-            <a href="?page={{ latest_posts_page.previous_page_number }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
-              <i class="fa-solid fa-arrow-left"></i>
-              Previous
-            </a>
-          {% else %}
-            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-400 cursor-not-allowed">
-              <i class="fa-solid fa-arrow-left"></i>
-              Previous
-            </span>
-          {% endif %}
-
-          {% if latest_posts_page.has_next %}
-            <a href="?page={{ latest_posts_page.next_page_number }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-900 text-white bg-gray-900 hover:bg-gray-800">
-              Next
-              <i class="fa-solid fa-arrow-right"></i>
-            </a>
-          {% else %}
-            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-400 cursor-not-allowed">
-              Next
-              <i class="fa-solid fa-arrow-right"></i>
-            </span>
-          {% endif %}
-        </div>
-      </div>
-    </nav>
+    </div>
 </section>
-{% endblock content %}  
+{% endif %}
 
+<!-- Our Collections Section -->
+<section class="py-12 md:py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl md:text-4xl font-bold text-black mb-4 text-center">OUR COLLECTIONS</h2>
+        <p class="text-gray-600 text-center max-w-2xl mx-auto mb-8">
+            Discover our curated selection of handcrafted resin furniture and art pieces. Each item is uniquely designed to bring elegance and style to your space.
+        </p>
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+            {% for category in featured_categories %}
+            <a href="{% url 'shop' %}?category={{ category.id }}" class="group text-center">
+                <div class="relative overflow-hidden bg-gray-100 rounded-lg aspect-square mb-3">
+                    {% if category.featured_image %}
+                    <img src="{{ category.featured_image.url }}" alt="{{ category.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    {% elif category.items.first and category.items.first.image1 %}
+                    <img src="{{ category.items.first.image1.url }}" alt="{{ category.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-gray-400">
+                        <i class="fas fa-image text-4xl"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <h3 class="font-semibold text-black mb-1">{{ category.name|upper }}</h3>
+                <p class="text-sm text-gray-600">{{ category.items.count }} Items</p>
+            </a>
+            {% empty %}
+            <p class="col-span-full text-center text-gray-500">No featured categories available. Add categories and mark them as featured in the admin.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
 
+<!-- Promotional Banner -->
+{% if promotional_banner %}
+<section class="py-12 md:py-16 bg-gradient-to-br from-amber-100 to-yellow-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        {% if promotional_banner.subtitle %}
+        <p class="text-sm md:text-base uppercase tracking-wider text-gray-700 mb-2">{{ promotional_banner.subtitle }}</p>
+        {% endif %}
+        <h2 class="text-3xl md:text-5xl font-bold text-black mb-4">{{ promotional_banner.title }}</h2>
+        {% if promotional_banner.content %}
+        <p class="text-gray-700 mb-6 max-w-2xl mx-auto">
+            {{ promotional_banner.content }}
+        </p>
+        {% endif %}
+        {% if promotional_banner.cta_text and promotional_banner.cta_url %}
+        <a href="{{ promotional_banner.cta_url }}" class="inline-flex items-center justify-center px-8 py-3 bg-white text-black border-2 border-black font-semibold hover:bg-gray-100 transition-colors rounded-full">
+            {{ promotional_banner.cta_text }}
+        </a>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Sale Collection Section -->
+<section class="py-12 md:py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-center gap-8 mb-8 border-b border-gray-200">
+            <button class="tab-btn active pb-4 px-4 font-semibold text-black border-b-2 border-black" data-tab="sale">
+                SALE
+            </button>
+            <button class="tab-btn pb-4 px-4 font-semibold text-gray-500 hover:text-black" data-tab="collection">
+                COLLECTION
+            </button>
+        </div>
+
+        <!-- Sale Products -->
+        <div id="sale-tab" class="tab-content">
+            {% if sale_items %}
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                {% for post in sale_items %}
+                <div class="group relative">
+                    <a href="{% url 'item-details' post.slug %}" class="block">
+                        <div class="relative overflow-hidden bg-gray-50 rounded-lg aspect-square mb-3">
+                            {% if post.image1 %}
+                            <img src="{{ post.image1.url }}" alt="{{ post.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            {% endif %}
+                            <button class="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white">
+                                <i class="fas fa-heart text-gray-700"></i>
+                            </button>
+                            {% if post.discount_percentage %}
+                            <span class="absolute top-3 right-3 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                                -{{ post.discount_percentage }}%
+                            </span>
+                            {% endif %}
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                <form action="{% url 'add-to-cart' %}" method="POST" class="mx-auto">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                                    <button type="submit" class="bg-white text-black px-6 py-2 font-semibold rounded-full hover:bg-gray-100 transition-colors">
+                                        ADD TO CART
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <h3 class="font-semibold text-black mb-1">{{ post.name|upper }}</h3>
+                        {% if post.sale_price %}
+                        <p class="text-sm font-bold text-black">${{ post.sale_price }}</p>
+                        <p class="text-xs text-gray-500 line-through">${{ post.price }}</p>
+                        {% else %}
+                        <p class="text-sm font-bold text-black">${{ post.price }}</p>
+                        {% endif %}
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-center text-gray-500 py-12">No sale items available. Mark items as "On Sale" in the admin to display them here.</p>
+            {% endif %}
+        </div>
+
+        <!-- Collection Products -->
+        <div id="collection-tab" class="tab-content hidden">
+            {% if collection_items %}
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                {% for post in collection_items %}
+                <div class="group relative">
+                    <a href="{% url 'item-details' post.slug %}" class="block">
+                        <div class="relative overflow-hidden bg-gray-50 rounded-lg aspect-square mb-3">
+                            {% if post.image1 %}
+                            <img src="{{ post.image1.url }}" alt="{{ post.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            {% endif %}
+                            <button class="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white">
+                                <i class="fas fa-heart text-gray-700"></i>
+                            </button>
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                <form action="{% url 'add-to-cart' %}" method="POST" class="mx-auto">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                                    <button type="submit" class="bg-white text-black px-6 py-2 font-semibold rounded-full hover:bg-gray-100 transition-colors">
+                                        ADD TO CART
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <h3 class="font-semibold text-black mb-1">{{ post.name|upper }}</h3>
+                        <p class="text-sm font-bold text-black">${{ post.price }}</p>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-center text-gray-500 py-12">No featured items available. Mark items as "Featured" in the admin to display them here.</p>
+            {% endif %}
+        </div>
+
+        <div class="text-center mt-8">
+            <a href="{% url 'index' %}" class="inline-flex items-center justify-center px-8 py-3 bg-white text-black border-2 border-black font-semibold hover:bg-gray-100 transition-colors rounded-full">
+                ALL PRODUCTS
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+{% if testimonial %}
+<section class="py-12 md:py-16 bg-black text-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="flex justify-center mb-4">
+            {% for i in "12345" %}
+            {% if forloop.counter <= testimonial.rating %}
+            <i class="fas fa-star text-yellow-400"></i>
+            {% else %}
+            <i class="far fa-star text-gray-600"></i>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <p class="text-xl md:text-2xl font-semibold mb-4">
+            "{{ testimonial.quote|upper }}"
+        </p>
+        <p class="text-gray-400">
+            {{ testimonial.customer_name|upper }}{% if testimonial.location %} FROM {{ testimonial.location|upper }}{% endif %}
+        </p>
+    </div>
+</section>
+{% endif %}
+
+<!-- Latest Arrivals -->
+{% if latest_arrivals %}
+<section class="py-12 md:py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl md:text-4xl font-bold text-black mb-4 text-center">LATEST ARRIVALS</h2>
+        <p class="text-gray-600 text-center max-w-2xl mx-auto mb-8">
+            Check out our newest additions to the collection. Fresh designs and unique pieces just for you.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for post in latest_arrivals %}
+            <a href="{% url 'item-details' post.slug %}" class="relative overflow-hidden rounded-lg aspect-square block">
+                {% if post.image1 %}
+                <img src="{{ post.image1.url }}" alt="{{ post.name }}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Newsletter Section -->
+<section class="py-12 md:py-16 bg-white border-t border-gray-200">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-black mb-4">JOIN TRIBE RESIN RIVER</h2>
+        <p class="text-gray-600 mb-6">
+            Subscribe to get notified about new products and personal offers.
+        </p>
+        <form method="post" action="#" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Your email" required class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-full focus:outline-none focus:border-black">
+            <button type="submit" class="px-8 py-3 bg-black text-white rounded-full font-semibold hover:bg-gray-900 transition-colors">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+    </div>
+</section>
+
+<!-- Pagination -->
+{% if latest_posts_page.has_other_pages %}
+<nav aria-label="Pagination" class="py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-center gap-2">
+            {% if latest_posts_page.has_previous %}
+            <a href="?page={{ latest_posts_page.previous_page_number }}" class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            {% endif %}
+            
+            {% for num in latest_posts_page.paginator.page_range %}
+            {% if latest_posts_page.number == num %}
+            <span class="px-4 py-2 bg-black text-white rounded">{{ num }}</span>
+            {% else %}
+            <a href="?page={{ num }}" class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">{{ num }}</a>
+            {% endif %}
+            {% endfor %}
+            
+            {% if latest_posts_page.has_next %}
+            <a href="?page={{ latest_posts_page.next_page_number }}" class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+{% endif %}
+
+<script>
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tab = this.dataset.tab;
+            
+            // Update button states
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active', 'border-black', 'text-black');
+                b.classList.add('text-gray-500');
+            });
+            this.classList.add('active', 'border-black', 'text-black');
+            this.classList.remove('text-gray-500');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(tab + '-tab').classList.remove('hidden');
+        });
+    });
+</script>
+{% endblock content %}

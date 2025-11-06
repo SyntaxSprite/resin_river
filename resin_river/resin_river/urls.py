@@ -22,14 +22,21 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('resin_apps.urls')) 
-]+static(settings.MEDIA_URL, document_root= settings.MEDIA_ROOT)
+    path('accounts/', include('allauth.urls')),
+    path('', include('resin_apps.urls'))
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+# Custom error handlers
+handler404 = 'resin_apps.views.handler404'
+handler500 = 'resin_apps.views.handler500'
+
+# Note: The django-allauth package handles password reset URLs,
+# so the original auth/password reset routes have been removed.
 # Auth/password reset routes
-urlpatterns += [
-    path('password-reset/', auth_views.PasswordResetView.as_view(template_name='resin_apps/password_reset.html'), name='password_reset'),
-    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='resin_apps/password_reset_done.html'), name='password_reset_done'),
-    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='resin_apps/password_reset_confirm.html'), name='password_reset_confirm'),
-    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='resin_apps/password_reset_complete.html'), name='password_reset_complete'),
-]
+# urlpatterns += [
+#     path('password-reset/', auth_views.PasswordResetView.as_view(template_name='resin_apps/password_reset.html'), name='password_reset'),
+#     path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='resin_apps/password_reset_done.html'), name='password_reset_done'),
+#     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='resin_apps/password_reset_confirm.html'), name='password_reset_confirm'),
+#     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='resin_apps/password_reset_complete.html'), name='password_reset_complete'),
+# ]
 

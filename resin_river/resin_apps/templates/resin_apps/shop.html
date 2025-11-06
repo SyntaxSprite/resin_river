@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Shop - All Products - Resin River{% endblock title %}
+
+{% block content %}
+<!-- Breadcrumbs -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <nav class="text-sm text-gray-600">
+        <a href="{% url 'index' %}" class="hover:text-black">Home</a>
+        <span class="mx-2">/</span>
+        <span class="text-black">Products</span>
+    </nav>
+</div>
+
+<!-- Page Header -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+    <h1 class="text-4xl md:text-5xl font-bold text-black mb-2">ALL PRODUCTS</h1>
+    <p class="text-gray-600 max-w-2xl mx-auto">Shop now, not later. Browse the best of our favorite pieces.</p>
+</div>
+
+<!-- Category Carousel -->
+{% if categories %}
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-b border-gray-200">
+    <div class="relative">
+        <div class="flex gap-4 md:gap-6 overflow-x-auto pb-4 scrollbar-hide">
+            {% for category in categories %}
+            <a href="{% url 'shop' %}?category={{ category.id }}" class="flex-shrink-0 group text-center">
+                <div class="relative overflow-hidden bg-gray-100 rounded-lg aspect-square w-32 md:w-40 mb-3">
+                    {% if category.featured_image %}
+                    <img src="{{ category.featured_image.url }}" alt="{{ category.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    {% elif category.items.first and category.items.first.image1 %}
+                    <img src="{{ category.items.first.image1.url }}" alt="{{ category.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-gray-400">
+                        <i class="fas fa-image text-4xl"></i>
+                    </div>
+                    {% endif %}
+                    <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i class="fas fa-arrow-right text-white bg-black/50 rounded-full p-2"></i>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-black mb-1">{{ category.name|upper }}</h3>
+                <p class="text-sm text-gray-600">{{ category.item_count }} Item{{ category.item_count|pluralize }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Main Content -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <!-- Filter Sidebar -->
+        <aside class="lg:col-span-1">
+            <div class="sticky top-4">
+                <h2 class="text-lg font-bold text-black mb-4">FILTER:</h2>
+                
+                <!-- Availability Filter -->
+                <div class="mb-6">
+                    <h3 class="font-semibold text-black mb-3">AVAILABILITY</h3>
+                    <form method="GET" action="{% url 'shop' %}" id="filterForm">
+                        {% if category_filter %}
+                        <input type="hidden" name="category" value="{{ category_filter }}">
+                        {% endif %}
+                        {% if min_price %}
+                        <input type="hidden" name="min_price" value="{{ min_price }}">
+                        {% endif %}
+                        {% if max_price %}
+                        <input type="hidden" name="max_price" value="{{ max_price }}">
+                        {% endif %}
+                        {% if sort_by %}
+                        <input type="hidden" name="sort" value="{{ sort_by }}">
+                        {% endif %}
+                        {% if search_query %}
+                        <input type="hidden" name="search" value="{{ search_query }}">
+                        {% endif %}
+                        
+                        <label class="flex items-center gap-2 mb-2">
+                            <input type="radio" name="availability" value="in_stock" {% if availability_filter == 'in_stock' %}checked{% endif %} onchange="this.form.submit()" class="w-4 h-4">
+                            <span class="text-sm text-gray-700">In stock ({{ in_stock_count }})</span>
+                        </label>
+                        <label class="flex items-center gap-2">
+                            <input type="radio" name="availability" value="out_of_stock" {% if availability_filter == 'out_of_stock' %}checked{% endif %} onchange="this.form.submit()" class="w-4 h-4">
+                            <span class="text-sm text-gray-700">Out of stock ({{ out_of_stock_count }})</span>
+                        </label>
+                        <label class="flex items-center gap-2 mt-2">
+                            <input type="radio" name="availability" value="" {% if not availability_filter %}checked{% endif %} onchange="this.form.submit()" class="w-4 h-4">
+                            <span class="text-sm text-gray-700">All</span>
+                        </label>
+                    </form>
+                </div>
+                
+                <!-- Price Filter -->
+                <div class="mb-6">
+                    <h3 class="font-semibold text-black mb-3">PRICE</h3>
+                    <form method="GET" action="{% url 'shop' %}" id="priceForm">
+                        {% if category_filter %}
+                        <input type="hidden" name="category" value="{{ category_filter }}">
+                        {% endif %}
+                        {% if availability_filter %}
+                        <input type="hidden" name="availability" value="{{ availability_filter }}">
+                        {% endif %}
+                        {% if sort_by %}
+                        <input type="hidden" name="sort" value="{{ sort_by }}">
+                        {% endif %}
+                        {% if search_query %}
+                        <input type="hidden" name="search" value="{{ search_query }}">
+                        {% endif %}
+                        
+                        <div class="flex gap-2 mb-2">
+                            <input type="number" name="min_price" placeholder="0" value="{{ min_price }}" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-black">
+                            <span class="self-center text-gray-600">-</span>
+                            <input type="number" name="max_price" placeholder="{{ price_range.max_price|floatformat:2 }}" value="{{ max_price }}" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-black">
+                        </div>
+                        <button type="submit" class="w-full py-2 bg-black text-white font-semibold rounded hover:bg-gray-900 transition-colors">
+                            Apply
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Products Section -->
+        <div class="lg:col-span-3">
+            <!-- Sort and Count -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                <p class="text-sm text-gray-600">{{ total_items }} Product{{ total_items|pluralize }}</p>
+                <div class="flex items-center gap-4">
+                    <label class="text-sm font-semibold text-black">Sort by:</label>
+                    <form method="GET" action="{% url 'shop' %}" class="inline">
+                        {% if category_filter %}
+                        <input type="hidden" name="category" value="{{ category_filter }}">
+                        {% endif %}
+                        {% if availability_filter %}
+                        <input type="hidden" name="availability" value="{{ availability_filter }}">
+                        {% endif %}
+                        {% if min_price %}
+                        <input type="hidden" name="min_price" value="{{ min_price }}">
+                        {% endif %}
+                        {% if max_price %}
+                        <input type="hidden" name="max_price" value="{{ max_price }}">
+                        {% endif %}
+                        {% if search_query %}
+                        <input type="hidden" name="search" value="{{ search_query }}">
+                        {% endif %}
+                        <select name="sort" onchange="this.form.submit()" class="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-black">
+                            <option value="display_order" {% if sort_by == 'display_order' %}selected{% endif %}>Default</option>
+                            <option value="name_asc" {% if sort_by == 'name_asc' %}selected{% endif %}>Alphabetically, A-Z</option>
+                            <option value="name_desc" {% if sort_by == 'name_desc' %}selected{% endif %}>Alphabetically, Z-A</option>
+                            <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                            <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest First</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Product Grid -->
+            {% if items %}
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+                {% for item in items %}
+                <div class="group relative">
+                    <a href="{% url 'item-details' item.slug %}" class="block">
+                        <div class="relative overflow-hidden bg-gray-50 rounded-lg aspect-square mb-3">
+                            {% if item.image1 %}
+                            <img src="{{ item.image1.url }}" alt="{{ item.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            {% else %}
+                            <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                <i class="fas fa-image text-4xl"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Badges -->
+                            <div class="absolute top-3 left-3 flex flex-col gap-2">
+                                {% if item.is_latest_arrival %}
+                                <span class="px-2 py-1 bg-green-500 text-white text-xs font-semibold rounded">New</span>
+                                {% endif %}
+                                {% if item.is_on_sale and item.discount_percentage %}
+                                <span class="px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded">-{{ item.discount_percentage }}%</span>
+                                {% endif %}
+                            </div>
+                            
+                            {% if not item.available %}
+                            <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                <span class="px-4 py-2 bg-white text-black font-semibold rounded">Sold Out</span>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Wishlist Button -->
+                            <form action="{% url 'wish-list' %}" method="POST" class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {% csrf_token %}
+                                <input type="hidden" name="post_id" value="{{ item.id }}">
+                                <button type="submit" class="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white">
+                                    <i class="fas fa-heart text-gray-700"></i>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs text-gray-500 mb-1">RESIN RIVER</p>
+                            <h3 class="font-semibold text-black mb-1">{{ item.name|upper }}</h3>
+                            <div class="flex items-center justify-center gap-2">
+                                {% if item.sale_price %}
+                                <p class="text-sm font-bold text-black">${{ item.sale_price|floatformat:2 }}</p>
+                                <p class="text-xs text-gray-500 line-through">${{ item.price|floatformat:2 }}</p>
+                                {% else %}
+                                <p class="text-sm font-bold text-black">${{ item.price|floatformat:2 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if items.has_other_pages %}
+            <div class="flex items-center justify-center gap-2 mt-8">
+                {% if items.has_previous %}
+                <a href="?{% if category_filter %}category={{ category_filter }}&{% endif %}{% if availability_filter %}availability={{ availability_filter }}&{% endif %}{% if min_price %}min_price={{ min_price }}&{% endif %}{% if max_price %}max_price={{ max_price }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ items.previous_page_number }}" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-100">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% endif %}
+                
+                {% for num in items.paginator.page_range %}
+                    {% if items.number == num %}
+                    <span class="px-4 py-2 bg-black text-white font-semibold rounded">{{ num }}</span>
+                    {% elif num > items.number|add:'-3' and num < items.number|add:'3' %}
+                    <a href="?{% if category_filter %}category={{ category_filter }}&{% endif %}{% if availability_filter %}availability={{ availability_filter }}&{% endif %}{% if min_price %}min_price={{ min_price }}&{% endif %}{% if max_price %}max_price={{ max_price }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ num }}" class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if items.has_next %}
+                <a href="?{% if category_filter %}category={{ category_filter }}&{% endif %}{% if availability_filter %}availability={{ availability_filter }}&{% endif %}{% if min_price %}min_price={{ min_price }}&{% endif %}{% if max_price %}max_price={{ max_price }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ items.next_page_number }}" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-100">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="text-center py-16">
+                <i class="fas fa-box-open text-6xl text-gray-300 mb-4"></i>
+                <h2 class="text-2xl font-semibold text-gray-700 mb-2">No products found</h2>
+                <p class="text-gray-600 mb-6">Try adjusting your filters or search terms.</p>
+                <a href="{% url 'shop' %}" class="inline-block px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition-colors">
+                    View All Products
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+</style>
+{% endblock content %}
+

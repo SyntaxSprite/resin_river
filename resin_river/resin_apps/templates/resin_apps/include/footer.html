@@ -1,19 +1,154 @@
-<footer class="mt-auto py-6 px-6 bg-gray-800 text-gray-300">
-  <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-    <div class="md:col-span-2">
-      <h3 class="mb-3 font-semibold text-gray-200">About</h3>
-      <p class="text-sm text-gray-400">Lorem ipsum bla bla bla. Lorem ipsum bla bla bla. Lorem ipsum bla bla bla.</p>
+<!-- Footer Top Section -->
+<section class="bg-white border-t border-gray-200 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+            <!-- Shipping -->
+            <div class="flex flex-col md:flex-row items-center md:items-start gap-4">
+                <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                    <i class="fas fa-truck text-2xl text-gray-700"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-black mb-2">SHIPPING</h3>
+                    <p class="text-sm text-gray-600">We ship across Nigeria T&C Apply</p>
+                </div>
+            </div>
+
+            <!-- Customer Service -->
+            <div class="flex flex-col md:flex-row items-center md:items-start gap-4">
+                <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                    <i class="fas fa-headset text-2xl text-gray-700"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-black mb-2">CUSTOMER SERVICE</h3>
+                    <p class="text-sm text-gray-600">+234 809 476 3263</p>
+                </div>
+            </div>
+
+            <!-- Refer a Friend -->
+            <div class="flex flex-col md:flex-row items-center md:items-start gap-4">
+                <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                    <i class="fas fa-gift text-2xl text-gray-700"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-black mb-2">REFER A FRIEND</h3>
+                    <p class="text-sm text-gray-600">Refer a friend and get 5% off each other</p>
+                </div>
+            </div>
+        </div>
     </div>
-    <div>
-      <h3 class="mb-3 font-semibold text-gray-200">Menu</h3>
-      <ul class="space-y-2">
-        <li><a href="#" class="text-sm text-yellow-500 hover:text-yellow-600">About</a></li>
-        <li><a href="#" class="text-sm text-yellow-500 hover:text-yellow-600">Contact</a></li>
-        <li><a href="#" class="text-sm text-yellow-500 hover:text-yellow-600">Privacy policy</a></li>
-        <li><a href="#" class="text-sm text-yellow-500 hover:text-yellow-600">Terms of use</a></li>
-      </ul>
+</section>
+
+<!-- Footer Main Section -->
+<footer class="bg-gray-900 text-gray-300 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
+            <!-- About Us -->
+            <div>
+                <h3 class="font-semibold text-white mb-4">About Us</h3>
+                <p class="text-sm text-gray-400 mb-4">
+                    Resin River is a minimalist, locally made, and sustainably produced brand. We create unique custom resin furniture and art pieces.
+                </p>
+            </div>
+
+            <!-- Shop -->
+            <div>
+                <h3 class="font-semibold text-white mb-4">Shop</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Sofa</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Consoles</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Tables</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Soft Seating</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Coffee Tables</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Chairs</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Beds</a></li>
+                </ul>
+            </div>
+
+            <!-- Terms -->
+            <div>
+                <h3 class="font-semibold text-white mb-4">Terms</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Refund Policy</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
+                </ul>
+            </div>
+
+            <!-- Information -->
+            <div>
+                <h3 class="font-semibold text-white mb-4">Information</h3>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li>56 Billings Way</li>
+                    <li>Ikeja Lagos</li>
+                    <li>+234-809-6753355</li>
+                    <li><a href="mailto:support@resinriver.com" class="hover:text-white transition-colors">support@resinriver.com</a></li>
+                </ul>
+            </div>
+
+            <!-- Sign Up & Save -->
+            <div>
+                <h3 class="font-semibold text-white mb-4">Sign Up & Save Up To 10%</h3>
+                <p class="text-sm text-gray-400 mb-4">
+                    Subscribe to get exclusive deals and discounts.
+                </p>
+                <form method="post" action="#" class="flex flex-col gap-2">
+                    {% csrf_token %}
+                    <input type="email" name="email" placeholder="Your email" required class="px-4 py-2 bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-500 focus:outline-none focus:border-white">
+                    <button type="submit" class="px-4 py-2 bg-white text-black rounded font-semibold hover:bg-gray-100 transition-colors">
+                        SUBSCRIBE
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Social Media & Copyright -->
+        <div class="border-t border-gray-800 pt-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Facebook">
+                        <i class="fab fa-facebook text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Instagram">
+                        <i class="fab fa-instagram text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Twitter">
+                        <i class="fab fa-twitter text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="TikTok">
+                        <i class="fab fa-tiktok text-xl"></i>
+                    </a>
+                </div>
+                <p class="text-sm text-gray-400">
+                    © {% now "Y" %}, Resin River. All rights reserved.
+                </p>
+            </div>
+        </div>
     </div>
-  </div>
 </footer>
 
+<!-- Scroll to Top Button -->
+<button id="scroll-to-top" class="fixed bottom-8 right-8 w-12 h-12 bg-white border-2 border-gray-300 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-50 transition-colors opacity-0 invisible z-50">
+    <i class="fas fa-arrow-up text-gray-700"></i>
+</button>
 
+<script>
+    // Scroll to top button
+    const scrollBtn = document.getElementById('scroll-to-top');
+    
+    window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) {
+            scrollBtn.classList.remove('opacity-0', 'invisible');
+            scrollBtn.classList.add('opacity-100', 'visible');
+        } else {
+            scrollBtn.classList.add('opacity-0', 'invisible');
+            scrollBtn.classList.remove('opacity-100', 'visible');
+        }
+    });
+    
+    scrollBtn.addEventListener('click', function() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+</script>

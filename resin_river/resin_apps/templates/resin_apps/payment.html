@@ -1,33 +1,178 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Payment{% endblock title %}
+{% block title %}Payment - Order {{ order.order_number }} - Resin River{% endblock title %}
 
 {% block content %}
-<h2>Payment</h2>
-
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-  <div>
-    <h3 class="text-xl font-semibold mb-2">Order Total</h3>
-    <p><strong>Subtotal:</strong> {{ subtotal }}</p>
-  </div>
-
-  <div>
-    <h3 class="text-xl font-semibold mb-2">Contact & Shipping</h3>
-    <p>{{ checkout.full_name }}<br/>
-       {{ checkout.email }}<br/>
-       {% if checkout.phone %}{{ checkout.phone }}<br/>{% endif %}
-       {{ checkout.address_line1 }}{% if checkout.address_line2 %}, {{ checkout.address_line2 }}{% endif %}<br/>
-       {{ checkout.city }}{% if checkout.state %}, {{ checkout.state }}{% endif %} {{ checkout.postal_code }}
-    </p>
-
-    <form method="post" action="{% url 'payment' %}" class="mt-2">
-      {% csrf_token %}
-      <input type="hidden" name="confirm" value="1" />
-      <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Pay now (mock)</button>
-    </form>
-  </div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+        <h1 class="text-3xl md:text-4xl font-bold text-black mb-2">Complete Your Payment</h1>
+        <p class="text-gray-600">Order Number: <span class="font-semibold">{{ order.order_number }}</span></p>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column - Payment Details -->
+        <div class="lg:col-span-2">
+            <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                <h2 class="text-xl font-bold text-black mb-4">Payment Method</h2>
+                <div class="mb-4">
+                    <p class="text-lg font-semibold text-black">{{ payment_method.display_name }}</p>
+                    {% if payment_method.description %}
+                    <p class="text-sm text-gray-600 mt-2">{{ payment_method.description }}</p>
+                    {% endif %}
+                </div>
+                
+                {% if payment_method.method_type == 'bank_deposit' %}
+                <!-- Bank Deposit Instructions -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <h3 class="font-semibold text-black mb-3">Bank Deposit Instructions</h3>
+                    {% if payment_method.bank_name %}
+                    <div class="space-y-2 text-sm">
+                        <p><span class="font-semibold">Bank Name:</span> {{ payment_method.bank_name }}</p>
+                        <p><span class="font-semibold">Account Name:</span> {{ payment_method.account_name }}</p>
+                        <p><span class="font-semibold">Account Number:</span> {{ payment_method.account_number }}</p>
+                        {% if payment_method.bank_instructions %}
+                        <div class="mt-3 pt-3 border-t border-blue-200">
+                            <p class="font-semibold mb-2">Instructions:</p>
+                            <p class="text-gray-700 whitespace-pre-line">{{ payment_method.bank_instructions }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <p class="text-sm text-gray-600">Bank details will be sent to your email after order confirmation.</p>
+                    {% endif %}
+                </div>
+                {% elif payment_method.method_type == 'paystack' or payment_method.method_type == 'stripe' %}
+                <!-- Payment Gateway Integration Placeholder -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
+                    <p class="text-sm text-gray-600 mb-4">You will be redirected to {{ payment_method.display_name }} to complete your payment securely.</p>
+                    <div class="flex items-center gap-2 mb-4">
+                        <i class="fab fa-cc-mastercard text-3xl text-gray-600"></i>
+                        <i class="fab fa-cc-visa text-3xl text-gray-600"></i>
+                        <i class="fas fa-credit-card text-3xl text-gray-600"></i>
+                        <span class="text-sm text-gray-600">+ More payment options</span>
+                    </div>
+                    <p class="text-xs text-gray-500">All transactions are secure and encrypted.</p>
+                </div>
+                {% endif %}
+                
+                <!-- Payment Actions -->
+                <form method="post" action="{% url 'payment' order.id %}">
+                    {% csrf_token %}
+                    {% if payment_method.method_type == 'bank_deposit' %}
+                    <button type="submit" name="action" value="confirm_payment" class="w-full py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors mb-3">
+                        Confirm Order
+                    </button>
+                    <p class="text-xs text-gray-600 text-center mb-4">By confirming, you agree to make a bank deposit for this order.</p>
+                    {% else %}
+                    <button type="submit" name="action" value="confirm_payment" class="w-full py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors mb-3">
+                        Pay Now
+                    </button>
+                    <p class="text-xs text-gray-600 text-center mb-4">You will be redirected to {{ payment_method.display_name }} to complete payment.</p>
+                    {% endif %}
+                    <button type="submit" name="action" value="cancel" class="w-full py-3 bg-gray-200 text-black font-semibold rounded-lg hover:bg-gray-300 transition-colors">
+                        Cancel Order
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6">
+                <h2 class="text-xl font-bold text-black mb-4">Order Summary</h2>
+                <div class="space-y-4">
+                    {% for order_item in order.items.all %}
+                    <div class="flex gap-4 pb-4 border-b border-gray-200 last:border-0">
+                        <div class="flex-shrink-0">
+                            {% if order_item.item and order_item.item.image1 %}
+                            <img src="{{ order_item.item.image1.url }}" alt="{{ order_item.item_name }}" class="w-20 h-20 object-cover rounded">
+                            {% else %}
+                            <div class="w-20 h-20 bg-gray-100 rounded flex items-center justify-center">
+                                <i class="fas fa-image text-gray-400"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-semibold text-black mb-1">{{ order_item.item_name|upper }}</h3>
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-6 bg-black text-white rounded-full flex items-center justify-center text-xs font-semibold">{{ order_item.quantity }}</span>
+                                <span class="text-sm font-bold text-black">${{ order_item.subtotal|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column - Order Details -->
+        <div class="lg:col-span-1">
+            <div class="sticky top-4 bg-white border border-gray-200 rounded-lg p-6">
+                <h2 class="text-xl font-bold text-black mb-6">Order Details</h2>
+                
+                <!-- Order Information -->
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700 mb-1">Order Number</p>
+                        <p class="text-lg font-bold text-black">{{ order.order_number }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700 mb-1">Order Status</p>
+                        <p class="text-sm font-semibold text-blue-600">{{ order.get_status_display }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700 mb-1">Payment Status</p>
+                        <p class="text-sm font-semibold {% if order.payment_status == 'paid' %}text-green-600{% else %}text-yellow-600{% endif %}">
+                            {{ order.get_payment_status_display }}
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Delivery Address -->
+                <div class="mb-6 border-t border-gray-200 pt-6">
+                    <h3 class="font-semibold text-black mb-3">Delivery Address</h3>
+                    <div class="text-sm text-gray-600 space-y-1">
+                        <p>{{ order.delivery_first_name }} {{ order.delivery_last_name }}</p>
+                        <p>{{ order.delivery_address }}</p>
+                        <p>{{ order.delivery_city }}, {{ order.delivery_state }} {{ order.delivery_postal_code }}</p>
+                        <p>{{ order.delivery_country }}</p>
+                        <p class="mt-2">{{ order.delivery_phone }}</p>
+                    </div>
+                </div>
+                
+                <!-- Cost Breakdown -->
+                <div class="border-t border-gray-200 pt-6">
+                    <div class="space-y-3 mb-4">
+                        <div class="flex justify-between text-sm text-gray-700">
+                            <span>Subtotal</span>
+                            <span class="font-semibold">${{ order.subtotal|floatformat:2 }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-700">
+                            <span>Shipping</span>
+                            <span class="font-semibold">${{ order.shipping_cost|floatformat:2 }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-700">
+                            <span>Tax</span>
+                            <span class="font-semibold">${{ order.tax_amount|floatformat:2 }}</span>
+                        </div>
+                        {% if order.discount_amount > 0 %}
+                        <div class="flex justify-between text-sm text-green-600">
+                            <span>Discount</span>
+                            <span class="font-semibold">-${{ order.discount_amount|floatformat:2 }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="border-t border-gray-200 pt-4">
+                        <div class="flex justify-between items-baseline">
+                            <span class="text-sm font-semibold text-gray-700">Total</span>
+                            <div class="text-right">
+                                <span class="text-xs text-gray-600">USD</span>
+                                <span class="text-2xl font-bold text-black ml-2">${{ order.total|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
 {% endblock content %}
-
-

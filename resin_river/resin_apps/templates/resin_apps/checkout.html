@@ -1,52 +1,627 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Checkout{% endblock title %}
+{% block title %}Checkout - Resin River{% endblock title %}
 
 {% block content %}
-<h2>Checkout</h2>
-
-{% if has_post %}
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div>
-      <h3 class="text-xl font-semibold mb-2">Order Summary</h3>
-      <table class="w-full">
-        <thead>
-          <tr>
-            <th class="text-left">Item</th>
-            <th class="text-right">Price</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for item in post %}
-          <tr>
-            <td>{{ item.name }}</td>
-            <td class="text-right">{{ item.price }}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td class="text-right"><strong>Subtotal:</strong></td>
-            <td class="text-right"><strong>{{ subtotal }}</strong></td>
-          </tr>
-        </tfoot>
-      </table>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {% if has_post %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column - Main Form -->
+        <div class="lg:col-span-2">
+            <form method="post" action="{% url 'checkout' %}" id="checkoutForm">
+                {% csrf_token %}
+                
+                <!-- Contact Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-black mb-4">Contact</h2>
+                    <div class="flex items-center gap-2 mb-4">
+                        {{ form.contact_email_phone }}
+                        <a href="{% url 'login' %}" class="text-sm text-blue-600 hover:underline whitespace-nowrap">Sign in</a>
+                    </div>
+                    <label class="flex items-center gap-2">
+                        {{ form.email_news }}
+                        <span class="text-sm text-gray-700">{{ form.email_news.label }}</span>
+                    </label>
+                    {% if form.contact_email_phone.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.contact_email_phone.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Delivery Section -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-black">Delivery</h2>
+                        {% if request.user.is_authenticated and saved_addresses %}
+                        <a href="{% url 'saved-addresses' %}" class="text-sm text-blue-600 hover:text-blue-800">
+                            Manage Addresses
+                        </a>
+                        {% endif %}
+                    </div>
+                    
+                    {% if request.user.is_authenticated and saved_addresses %}
+                    <div class="mb-4 p-4 bg-gray-50 border border-gray-200 rounded">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Use Saved Address</label>
+                        <select id="saved-address-select" onchange="fillAddressFromSaved(this)" class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-black">
+                            <option value="">Select a saved address...</option>
+                            {% for address in saved_addresses %}
+                            <option value="{{ address.id }}" data-first-name="{{ address.first_name }}" data-last-name="{{ address.last_name }}" 
+                                data-address="{{ address.address }}" data-city="{{ address.city }}" data-state="{{ address.state }}" 
+                                data-postal-code="{{ address.postal_code }}" data-country="{{ address.country }}" data-phone="{{ address.phone }}">
+                                {{ address.label }} {% if address.is_default %}(Default){% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Country/Region</label>
+                            {{ form.delivery_country }}
+                            {% if form.delivery_country.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.delivery_country.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.delivery_first_name.label }}</label>
+                                {{ form.delivery_first_name }}
+                                {% if form.delivery_first_name.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.delivery_first_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.delivery_last_name.label }}</label>
+                                {{ form.delivery_last_name }}
+                                {% if form.delivery_last_name.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.delivery_last_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.delivery_address.label }}</label>
+                            {{ form.delivery_address }}
+                            {% if form.delivery_address.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.delivery_address.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.delivery_city.label }}</label>
+                                {{ form.delivery_city }}
+                                {% if form.delivery_city.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.delivery_city.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.delivery_state.label }}</label>
+                                {{ form.delivery_state }}
+                                {% if form.delivery_state.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.delivery_state.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.delivery_postal_code.label }}</label>
+                                {{ form.delivery_postal_code }}
+                                {% if form.delivery_postal_code.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.delivery_postal_code.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.delivery_phone.label }}</label>
+                            <div class="flex items-center gap-2">
+                                {{ form.delivery_phone }}
+                                <i class="fas fa-info-circle text-gray-400 cursor-help" title="We'll use this to contact you about your order"></i>
+                            </div>
+                            {% if form.delivery_phone.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.delivery_phone.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2">
+                                {{ form.save_delivery_info }}
+                                <span class="text-sm text-gray-700">{{ form.save_delivery_info.label }}</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                {{ form.text_news }}
+                                <span class="text-sm text-gray-700">{{ form.text_news.label }}</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Shipping Method Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-black mb-4">Shipping method</h2>
+                    {% if shipping_methods %}
+                    <div class="space-y-3">
+                        {% for method_data in shipping_methods %}
+                        {% with method=method_data.method cost=method_data.cost %}
+                        <label class="flex items-start gap-3 p-4 border-2 {% if selected_shipping_method.id == method.id %}border-black{% else %}border-gray-300{% endif %} rounded cursor-pointer hover:border-gray-400">
+                            <input type="radio" name="shipping_method" value="{{ method.id }}" {% if selected_shipping_method.id == method.id %}checked{% endif %} onchange="updateTotals()" class="mt-1">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-semibold text-black">{{ method.name }}</span>
+                                    <span class="text-lg font-bold text-black">${{ cost|floatformat:2 }}</span>
+                                </div>
+                                {% if method.description %}
+                                <p class="text-xs text-gray-600 mb-1">{{ method.description }}</p>
+                                {% endif %}
+                                <p class="text-xs text-gray-500">Estimated delivery: {{ method.estimated_days_min }}-{{ method.estimated_days_max }} days</p>
+                            </div>
+                        </label>
+                        {% endwith %}
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="border border-gray-300 rounded p-4">
+                        <p class="text-sm text-gray-600">No shipping methods available. Please contact support.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Discount Code Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-black mb-4">Discount code</h2>
+                    <div class="flex gap-2">
+                        <input type="text" id="discount-code-input" name="discount_code" value="{% if applied_discount %}{{ applied_discount.code }}{% elif discount_code %}{{ discount_code }}{% endif %}" placeholder="Enter discount code" class="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-black">
+                        <button type="button" onclick="applyDiscountCode()" class="px-6 py-2 bg-black text-white font-semibold rounded hover:bg-gray-900 transition-colors">Apply</button>
+                    </div>
+                    <!-- Hidden field to ensure discount code is submitted with form -->
+                    {% if applied_discount or discount_code %}
+                    <input type="hidden" name="applied_discount_code" value="{% if applied_discount %}{{ applied_discount.code }}{% elif discount_code %}{{ discount_code }}{% endif %}">
+                    {% endif %}
+                    <div id="discount-message" class="mt-2 text-sm"></div>
+                    {% if applied_discount %}
+                    <div class="mt-2 p-3 bg-green-50 border border-green-200 rounded">
+                        <p class="text-sm text-green-800">
+                            <i class="fas fa-check-circle"></i> Discount code "{{ applied_discount.code }}" applied!
+                            {% if applied_discount.description %}
+                            <br><span class="text-xs">{{ applied_discount.description }}</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Payment Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-black mb-2">Payment</h2>
+                    <p class="text-sm text-gray-600 mb-4">All transactions are secure and encrypted.</p>
+                    
+                    {% if payment_methods %}
+                    <div class="space-y-4">
+                        {% for payment_method in payment_methods %}
+                        <label class="flex items-start gap-3 p-4 border-2 {% if forloop.first %}border-black{% else %}border-gray-300{% endif %} rounded cursor-pointer payment-option hover:border-gray-400">
+                            <input type="radio" name="payment_method" value="{{ payment_method.id }}" {% if forloop.first %}checked{% endif %} class="mt-1">
+                            <div class="flex-1">
+                                <div class="font-semibold text-black mb-2">{{ payment_method.display_name }}</div>
+                                {% if payment_method.description %}
+                                <p class="text-xs text-gray-600 mb-2">{{ payment_method.description }}</p>
+                                {% endif %}
+                                {% if payment_method.method_type == 'paystack' or payment_method.method_type == 'stripe' %}
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i class="fab fa-cc-mastercard text-2xl text-gray-600"></i>
+                                    <i class="fab fa-cc-visa text-2xl text-gray-600"></i>
+                                    <i class="fas fa-credit-card text-2xl text-gray-600"></i>
+                                    <span class="text-sm text-gray-600">+5 more</span>
+                                </div>
+                                <p class="text-xs text-gray-600">After clicking 'Pay now', you will be redirected to {{ payment_method.display_name }} to complete your purchase securely.</p>
+                                {% elif payment_method.method_type == 'bank_deposit' %}
+                                <p class="text-xs text-gray-600">You will receive bank details after order confirmation.</p>
+                                {% endif %}
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="p-4 border border-yellow-300 bg-yellow-50 rounded">
+                        <p class="text-sm text-yellow-800">No payment methods are currently available. Please contact support.</p>
+                    </div>
+                    {% endif %}
+                    {% if form.payment_method.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.payment_method.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Billing Address Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-black mb-4">Billing address</h2>
+                    <div class="space-y-4">
+                        <label class="flex items-center gap-2">
+                            <input type="radio" name="billing_option" value="same" {% if not form.use_different_billing.value %}checked{% endif %} onchange="toggleBillingAddress()" class="billing-radio">
+                            <span class="text-sm text-gray-700">Same as shipping address</span>
+                        </label>
+                        <label class="flex items-center gap-2">
+                            <input type="radio" name="billing_option" value="different" {% if form.use_different_billing.value %}checked{% endif %} onchange="toggleBillingAddress()" class="billing-radio">
+                            <span class="text-sm text-gray-700">Use a different billing address</span>
+                        </label>
+                        <input type="hidden" name="billing_same_as_shipping" id="billing_same_as_shipping" value="{% if not form.use_different_billing.value %}true{% endif %}">
+                        <input type="hidden" name="use_different_billing" id="use_different_billing" value="{% if form.use_different_billing.value %}true{% endif %}">
+                        
+                        <div id="billingAddressFields" class="{% if not form.use_different_billing.value %}hidden{% endif %} space-y-4 bg-blue-50 p-4 rounded">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Country/Region</label>
+                                {{ form.billing_country }}
+                                {% if form.billing_country.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.billing_country.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.billing_first_name.label }}</label>
+                                    {{ form.billing_first_name }}
+                                    {% if form.billing_first_name.errors %}
+                                    <p class="text-red-600 text-sm mt-1">{{ form.billing_first_name.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.billing_last_name.label }}</label>
+                                    {{ form.billing_last_name }}
+                                    {% if form.billing_last_name.errors %}
+                                    <p class="text-red-600 text-sm mt-1">{{ form.billing_last_name.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.billing_address.label }}</label>
+                                {{ form.billing_address }}
+                                {% if form.billing_address.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.billing_address.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="grid grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.billing_city.label }}</label>
+                                    {{ form.billing_city }}
+                                    {% if form.billing_city.errors %}
+                                    <p class="text-red-600 text-sm mt-1">{{ form.billing_city.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.billing_state.label }}</label>
+                                    {{ form.billing_state }}
+                                    {% if form.billing_state.errors %}
+                                    <p class="text-red-600 text-sm mt-1">{{ form.billing_state.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.billing_postal_code.label }}</label>
+                                    {{ form.billing_postal_code }}
+                                    {% if form.billing_postal_code.errors %}
+                                    <p class="text-red-600 text-sm mt-1">{{ form.billing_postal_code.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.billing_phone.label }}</label>
+                                <div class="flex items-center gap-2">
+                                    {{ form.billing_phone }}
+                                    <i class="fas fa-info-circle text-gray-400 cursor-help" title="Optional billing phone number"></i>
+                                </div>
+                                {% if form.billing_phone.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.billing_phone.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pay Now Button -->
+                <button type="submit" class="w-full py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors mb-4">
+                    Pay now
+                </button>
+                
+                <!-- Footer Links -->
+                <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+                    <a href="#" class="hover:text-black">Refund policy</a>
+                    <a href="#" class="hover:text-black">Shipping</a>
+                    <a href="#" class="hover:text-black">Privacy policy</a>
+                    <a href="#" class="hover:text-black">Terms of service</a>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Right Column - Order Summary -->
+        <div class="lg:col-span-1">
+            <div class="sticky top-4 bg-white border border-gray-200 rounded-lg p-6">
+                <h2 class="text-xl font-bold text-black mb-6">Order Summary</h2>
+                
+                <!-- Cart Items -->
+                <div class="space-y-4 mb-6">
+                    {% for cart_item in cart_items %}
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0">
+                            {% if cart_item.item.image1 %}
+                            <img src="{{ cart_item.item.image1.url }}" alt="{{ cart_item.item.name }}" class="w-20 h-20 object-cover rounded">
+                            {% else %}
+                            <div class="w-20 h-20 bg-gray-100 rounded flex items-center justify-center">
+                                <i class="fas fa-image text-gray-400"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-semibold text-black mb-1">{{ cart_item.item.name|upper }}</h3>
+                            <p class="text-sm text-gray-600 mb-2">{{ cart_item.item.description|truncatewords:10 }}</p>
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-6 bg-black text-white rounded-full flex items-center justify-center text-xs font-semibold">{{ cart_item.quantity }}</span>
+                                <span class="text-sm font-bold text-black">${{ cart_item.item_total|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Cost Breakdown -->
+                <div class="space-y-3 mb-6 border-t border-gray-200 pt-4">
+                    <div class="flex justify-between text-sm text-gray-700">
+                        <span>Subtotal</span>
+                        <span class="font-semibold" id="summary-subtotal">${{ subtotal|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-700">
+                        <div class="flex items-center gap-1">
+                            <span>Shipping</span>
+                            <i class="fas fa-info-circle text-gray-400 cursor-help" title="Shipping fee calculated based on selected method"></i>
+                        </div>
+                        <span class="font-semibold" id="summary-shipping">${{ shipping|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-700">
+                        <div class="flex items-center gap-1">
+                            <span>Estimated taxes</span>
+                            <i class="fas fa-info-circle text-gray-400 cursor-help" title="Tax calculated based on your location"></i>
+                        </div>
+                        <span class="font-semibold" id="summary-tax">${{ estimated_tax|floatformat:2 }}</span>
+                    </div>
+                    {% if discount_amount > 0 %}
+                    <div class="flex justify-between text-sm text-green-600" id="summary-discount-row">
+                        <span>Discount</span>
+                        <span class="font-semibold" id="summary-discount">-${{ discount_amount|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Total -->
+                <div class="border-t border-gray-200 pt-4">
+                    <div class="flex justify-between items-baseline">
+                        <span class="text-sm font-semibold text-gray-700">Total</span>
+                        <div class="text-right">
+                            <span class="text-xs text-gray-600">USD</span>
+                            <span class="text-2xl font-bold text-black ml-2" id="summary-total">${{ total|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div>
-      <h3 class="text-xl font-semibold mb-2">Shipping & Contact</h3>
-      <form method="post" action="{% url 'payment' %}" class="space-y-3">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">Proceed to payment</button>
-      </form>
+    {% else %}
+    <!-- Empty Cart -->
+    <div class="text-center py-16">
+        <i class="fas fa-shopping-cart text-6xl text-gray-300 mb-4"></i>
+        <h2 class="text-2xl font-semibold text-gray-700 mb-2">Your cart is empty</h2>
+        <p class="text-gray-600 mb-6">Add items to your cart to proceed to checkout.</p>
+        <a href="{% url 'shop' %}" class="inline-block px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition-colors">
+            Continue Shopping
+        </a>
     </div>
-  </div>
-{% else %}
-  <p class="text-gray-600">Your cart is empty.</p>
-  <a class="inline-flex items-center gap-2 border border-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100" href="{% url 'index' %}">Continue shopping</a>
-{% endif %}
+    {% endif %}
+</div>
 
+<script>
+    function toggleBillingAddress() {
+        const billingFields = document.getElementById('billingAddressFields');
+        const billingOption = document.querySelector('input[name="billing_option"]:checked');
+        const sameAsShippingInput = document.getElementById('billing_same_as_shipping');
+        const useDifferentInput = document.getElementById('use_different_billing');
+        
+        if (billingOption && billingOption.value === 'different') {
+            billingFields.classList.remove('hidden');
+            sameAsShippingInput.value = '';
+            useDifferentInput.value = 'true';
+        } else {
+            billingFields.classList.add('hidden');
+            sameAsShippingInput.value = 'true';
+            useDifferentInput.value = '';
+        }
+    }
+    
+    function applyDiscountCode() {
+        const discountCode = document.getElementById('discount-code-input').value.trim();
+        const deliveryCountry = document.querySelector('[name="delivery_country"]')?.value || '';
+        const deliveryState = document.querySelector('[name="delivery_state"]')?.value || '';
+        const shippingMethod = document.querySelector('[name="shipping_method"]:checked')?.value || '';
+        const messageDiv = document.getElementById('discount-message');
+        
+        if (!discountCode) {
+            messageDiv.innerHTML = '<p class="text-red-600">Please enter a discount code.</p>';
+            return;
+        }
+        
+        // Create form data
+        const formData = new FormData();
+        formData.append('discount_code', discountCode);
+        formData.append('delivery_country', deliveryCountry);
+        formData.append('delivery_state', deliveryState);
+        formData.append('shipping_method', shippingMethod);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        // Send AJAX request
+        fetch('{% url "checkout" %}', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Invalid discount code');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                messageDiv.innerHTML = '<p class="text-green-600"><i class="fas fa-check-circle"></i> ' + data.message + '</p>';
+                
+                // Update totals dynamically without page reload
+                updateSummaryTotals(data.discount_amount, data.total);
+                
+                // Update URL with discount code to preserve it
+                const deliveryCountry = document.querySelector('[name="delivery_country"]')?.value || '';
+                const deliveryState = document.querySelector('[name="delivery_state"]')?.value || '';
+                const shippingMethod = document.querySelector('[name="shipping_method"]:checked')?.value || '';
+                
+                const params = new URLSearchParams();
+                if (deliveryCountry) params.append('delivery_country', deliveryCountry);
+                if (deliveryState) params.append('delivery_state', deliveryState);
+                if (shippingMethod) params.append('shipping_method', shippingMethod);
+                params.append('discount_code', discountCode);
+                
+                // Update URL without reloading (for better UX)
+                window.history.replaceState({}, '', '{% url "checkout" %}?' + params.toString());
+                
+                // Show success message with discount applied
+                const successDiv = document.createElement('div');
+                successDiv.className = 'mt-2 p-3 bg-green-50 border border-green-200 rounded';
+                successDiv.innerHTML = `
+                    <p class="text-sm text-green-800">
+                        <i class="fas fa-check-circle"></i> Discount code "${discountCode}" applied!
+                    </p>
+                `;
+                // Remove existing success message if any
+                const existingSuccess = messageDiv.parentElement.querySelector('.bg-green-50');
+                if (existingSuccess) {
+                    existingSuccess.remove();
+                }
+                messageDiv.parentElement.insertBefore(successDiv, messageDiv.nextSibling);
+            } else {
+                messageDiv.innerHTML = '<p class="text-red-600"><i class="fas fa-exclamation-circle"></i> ' + data.message + '</p>';
+            }
+        })
+        .catch(error => {
+            messageDiv.innerHTML = '<p class="text-red-600">' + error.message + '</p>';
+        });
+    }
+    
+    function updateSummaryTotals(discountAmount, newTotal) {
+        // Update discount amount in summary
+        const discountRow = document.getElementById('summary-discount-row');
+        const discountAmountSpan = document.getElementById('summary-discount');
+        const totalSpan = document.getElementById('summary-total');
+        
+        if (discountAmount > 0) {
+            if (!discountRow) {
+                // Create discount row if it doesn't exist
+                const taxRow = document.querySelector('#summary-tax').closest('div');
+                const discountDiv = document.createElement('div');
+                discountDiv.id = 'summary-discount-row';
+                discountDiv.className = 'flex justify-between text-sm text-green-600';
+                discountDiv.innerHTML = `
+                    <span>Discount</span>
+                    <span class="font-semibold" id="summary-discount">-$${parseFloat(discountAmount).toFixed(2)}</span>
+                `;
+                taxRow.parentNode.insertBefore(discountDiv, taxRow.nextSibling);
+            } else {
+                if (discountAmountSpan) {
+                    discountAmountSpan.textContent = '-$' + parseFloat(discountAmount).toFixed(2);
+                }
+            }
+        } else if (discountRow) {
+            discountRow.remove();
+        }
+        
+        // Update total
+        if (totalSpan) {
+            totalSpan.textContent = '$' + parseFloat(newTotal).toFixed(2);
+        }
+    }
+    
+    function updateTotals() {
+        // Reload page to recalculate totals with new shipping method
+        const deliveryCountry = document.querySelector('[name="delivery_country"]')?.value || '';
+        const deliveryState = document.querySelector('[name="delivery_state"]')?.value || '';
+        const shippingMethod = document.querySelector('[name="shipping_method"]:checked')?.value || '';
+        const discountCode = document.getElementById('discount-code-input')?.value.trim() || '';
+        
+        const params = new URLSearchParams();
+        if (deliveryCountry) params.append('delivery_country', deliveryCountry);
+        if (deliveryState) params.append('delivery_state', deliveryState);
+        if (shippingMethod) params.append('shipping_method', shippingMethod);
+        if (discountCode) params.append('discount_code', discountCode);
+        
+        window.location.href = '{% url "checkout" %}?' + params.toString();
+    }
+    
+    function fillAddressFromSaved(selectElement) {
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        if (!selectedOption.value) return;
+        
+        document.querySelector('[name="delivery_first_name"]').value = selectedOption.dataset.firstName || '';
+        document.querySelector('[name="delivery_last_name"]').value = selectedOption.dataset.lastName || '';
+        document.querySelector('[name="delivery_address"]').value = selectedOption.dataset.address || '';
+        document.querySelector('[name="delivery_city"]').value = selectedOption.dataset.city || '';
+        document.querySelector('[name="delivery_state"]').value = selectedOption.dataset.state || '';
+        document.querySelector('[name="delivery_postal_code"]').value = selectedOption.dataset.postalCode || '';
+        document.querySelector('[name="delivery_country"]').value = selectedOption.dataset.country || '';
+        document.querySelector('[name="delivery_phone"]').value = selectedOption.dataset.phone || '';
+        
+        // Trigger update if country/state changed
+        const countryField = document.querySelector('[name="delivery_country"]');
+        const stateField = document.querySelector('[name="delivery_state"]');
+        if (countryField && stateField) {
+            updateTotals();
+        }
+    }
+    
+    // Update payment option styling on selection
+    document.querySelectorAll('.payment-option').forEach(option => {
+        const radio = option.querySelector('input[type="radio"]');
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('.payment-option').forEach(opt => {
+                opt.classList.remove('border-black', 'bg-blue-50');
+                opt.classList.add('border-gray-300');
+            });
+            if (this.checked) {
+                option.classList.remove('border-gray-300');
+                option.classList.add('border-black', 'bg-blue-50');
+            }
+        });
+        
+        // Set initial state
+        if (radio.checked) {
+            option.classList.remove('border-gray-300');
+            option.classList.add('border-black', 'bg-blue-50');
+        }
+    });
+    
+    // Update totals when delivery country/state changes
+    document.querySelector('[name="delivery_country"]')?.addEventListener('change', updateTotals);
+    document.querySelector('[name="delivery_state"]')?.addEventListener('change', updateTotals);
+    
+    // Allow Enter key to apply discount code
+    document.getElementById('discount-code-input')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            applyDiscountCode();
+        }
+    });
+</script>
+
+<style>
+    .payment-option {
+        transition: all 0.2s;
+    }
+</style>
 {% endblock content %}
-
-

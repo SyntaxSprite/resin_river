@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Account - Resin River{% endblock title %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-black mb-2">My Account</h1>
+        <p class="text-gray-600">Welcome back, {{ user.first_name|default:user.username }}!</p>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column - Account Info & Stats -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Account Information -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6">
+                <h2 class="text-xl font-bold text-black mb-4">Account Information</h2>
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <p class="text-gray-600">Name</p>
+                        <p class="font-semibold text-black">
+                            {% if user.first_name or user.last_name %}
+                            {{ user.first_name }} {{ user.last_name }}
+                            {% else %}
+                            {{ user.username }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Email</p>
+                        <p class="font-semibold text-black">{{ user.email }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Member Since</p>
+                        <p class="font-semibold text-black">{{ user.date_joined|date:"F Y" }}</p>
+                    </div>
+                </div>
+                <a href="{% url 'user-profile-edit' %}" class="mt-4 inline-block px-4 py-2 bg-black text-white font-semibold rounded hover:bg-gray-900 transition-colors text-sm">
+                    Edit Profile
+                </a>
+            </div>
+            
+            <!-- Order Statistics -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6">
+                <h2 class="text-xl font-bold text-black mb-4">Order Statistics</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Total Orders</span>
+                        <span class="text-2xl font-bold text-black">{{ total_orders }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Total Spent</span>
+                        <span class="text-2xl font-bold text-black">${{ total_spent|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Pending Orders</span>
+                        <span class="text-2xl font-bold text-yellow-600">{{ pending_orders }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Links -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6">
+                <h2 class="text-xl font-bold text-black mb-4">Quick Links</h2>
+                <div class="space-y-2">
+                    <a href="{% url 'order-history' %}" class="block py-2 text-gray-700 hover:text-black transition-colors">
+                        <i class="fas fa-shopping-bag mr-2"></i> My Orders
+                    </a>
+                    <a href="{% url 'saved-addresses' %}" class="block py-2 text-gray-700 hover:text-black transition-colors">
+                        <i class="fas fa-map-marker-alt mr-2"></i> Saved Addresses
+                    </a>
+                    <a href="{% url 'cart-list' %}" class="block py-2 text-gray-700 hover:text-black transition-colors">
+                        <i class="fas fa-shopping-cart mr-2"></i> Shopping Cart
+                    </a>
+                    <a href="{% url 'wish-list' %}" class="block py-2 text-gray-700 hover:text-black transition-colors">
+                        <i class="fas fa-heart mr-2"></i> Wishlist
+                    </a>
+                    <a href="{% url 'shop' %}" class="block py-2 text-gray-700 hover:text-black transition-colors">
+                        <i class="fas fa-store mr-2"></i> Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column - Recent Orders -->
+        <div class="lg:col-span-2">
+            <div class="bg-white border border-gray-200 rounded-lg p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-black">Recent Orders</h2>
+                    <a href="{% url 'order-history' %}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">
+                        View All →
+                    </a>
+                </div>
+                
+                {% if recent_orders %}
+                <div class="space-y-4">
+                    {% for order in recent_orders %}
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div>
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-lg font-bold text-black">Order #{{ order.order_number }}</h3>
+                                    <span class="px-2 py-1 rounded-full text-xs font-semibold 
+                                        {% if order.status == 'delivered' %}bg-green-100 text-green-800
+                                        {% elif order.status == 'shipped' %}bg-blue-100 text-blue-800
+                                        {% elif order.status == 'processing' %}bg-yellow-100 text-yellow-800
+                                        {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600">{{ order.created_at|date:"F d, Y" }}</p>
+                                <p class="text-sm text-gray-600">{{ order.items.count }} item{{ order.items.count|pluralize }}</p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="text-right">
+                                    <p class="text-lg font-bold text-black">${{ order.total|floatformat:2 }}</p>
+                                </div>
+                                <a href="{% url 'order-detail' order.id %}" class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 transition-colors text-sm font-semibold">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-shopping-bag text-6xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-600 mb-4">You haven't placed any orders yet.</p>
+                    <a href="{% url 'shop' %}" class="inline-block px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition-colors">
+                        Start Shopping
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+

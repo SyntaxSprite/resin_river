@@ -1,75 +1,367 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}{{post.slug}}{% endblock title %}
+{% block title %}{{ post.name }} - Resin River{% endblock title %}
 
 {% block content %}
-<div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-  <!-- Gallery -->
-  <div class="lg:col-span-3">
-    <div class="overflow-hidden rounded-2xl shadow">
-      <img src="{{ post.image1.url }}" class="w-full h-[420px] object-cover" id="mainImage">
-    </div>
-
-    <div class="grid grid-cols-3 gap-4 mt-4">
-      {% if post.image2 %}
-      <button class="rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-yellow-500" onclick="changeMainImage('{{ post.image2.url }}')">
-        <img src="{{ post.image2.url }}" class="w-full h-28 object-cover hover:opacity-90 transition">
-      </button>
-      {% endif %}
-      {% if post.image3 %}
-      <button class="rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-yellow-500" onclick="changeMainImage('{{ post.image3.url }}')">
-        <img src="{{ post.image3.url }}" class="w-full h-28 object-cover hover:opacity-90 transition">
-      </button>
-      {% endif %}
-    </div>
-  </div>
-
-  <!-- Details -->
-  <section class="lg:col-span-2 p-6 bg-white rounded-2xl shadow">
-    <h1 class="mb-2 text-2xl font-semibold text-gray-900">{{ post.name }}</h1>
-    <p class="text-sm text-gray-600 mb-4">{{ post.description }}</p>
-    <div class="text-lg font-semibold text-gray-900 mb-6">Price: {{ post.price }}</div>
-
-    <form action="{% url 'add-to-cart' %}" method="POST" class="mt-2">
-      {% csrf_token %}
-      <input type="hidden" name="post_id" value="{{ post.id }}">
-      <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 active:scale-95 transition-transform">
-        <i class="fa-solid fa-cart-plus"></i>
-        Add To Cart
-      </button>
-    </form>
-  </section>
+<div class="pb-20 lg:pb-0">
+<!-- Breadcrumbs -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <nav class="text-sm text-gray-600">
+        <a href="{% url 'index' %}" class="hover:text-black">Home</a>
+        <span class="mx-2">/</span>
+        {% if post.Category %}
+        <a href="#" class="hover:text-black">{{ post.Category.name }}</a>
+        <span class="mx-2">/</span>
+        {% endif %}
+        <span class="text-black">{{ post.name|upper }}</span>
+    </nav>
 </div>
 
-<!-- Related items -->
-<div class="mt-10">
-  <h2 class="mb-5 text-2xl font-semibold text-gray-900">Related items</h2>
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    {% for item in related_items %}
-    <div class="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-shadow duration-300 overflow-hidden border border-gray-100">
-      <a href="{% url 'item-details' item.slug %}" class="block">
-        <div class="relative overflow-hidden h-48">
-          {% if item.image1 %}
-          <img src="{{ item.image1.url }}" class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105">
-          {% else %}
-          <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">No image</div>
-          {% endif %}
+<!-- Product Main Section -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        <!-- Image Gallery (Left/Top) -->
+        <div class="order-2 lg:order-1">
+            <!-- Main Image -->
+            <div class="relative mb-4 bg-gray-50 rounded-lg overflow-hidden aspect-square">
+                <img id="mainImage" src="{{ post.image1.url }}" alt="{{ post.name }}" class="w-full h-full object-cover">
+                <!-- Navigation Arrows -->
+                <button id="prevImage" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors opacity-0 lg:opacity-100">
+                    <i class="fas fa-chevron-left text-gray-700"></i>
+                </button>
+                <button id="nextImage" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors opacity-0 lg:opacity-100">
+                    <i class="fas fa-chevron-right text-gray-700"></i>
+                </button>
+            </div>
+            
+            <!-- Thumbnail Carousel -->
+            <div class="relative">
+                <div id="thumbnailContainer" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    {% if post.image1 %}
+                    <button class="thumbnail-btn flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-black focus:outline-none" data-image="{{ post.image1.url }}">
+                        <img src="{{ post.image1.url }}" alt="{{ post.name }}" class="w-full h-full object-cover">
+                    </button>
+                    {% endif %}
+                    {% if post.image2 %}
+                    <button class="thumbnail-btn flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent focus:outline-none hover:border-gray-300" data-image="{{ post.image2.url }}">
+                        <img src="{{ post.image2.url }}" alt="{{ post.name }}" class="w-full h-full object-cover">
+                    </button>
+                    {% endif %}
+                    {% if post.image3 %}
+                    <button class="thumbnail-btn flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent focus:outline-none hover:border-gray-300" data-image="{{ post.image3.url }}">
+                        <img src="{{ post.image3.url }}" alt="{{ post.name }}" class="w-full h-full object-cover">
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-        <div class="p-5">
-          <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ item.name }}</h3>
-          <p class="text-sm text-gray-600">Price: {{ item.price }}</p>
+
+        <!-- Product Details (Right/Bottom) -->
+        <div class="order-1 lg:order-2">
+            <h1 class="text-3xl md:text-4xl font-bold text-black mb-2">{{ post.name|upper }}</h1>
+            
+            <!-- Price -->
+            <div class="mb-6">
+                {% if post.sale_price %}
+                <p class="text-3xl md:text-4xl font-bold text-black">${{ post.sale_price }}</p>
+                <p class="text-xl text-gray-500 line-through">${{ post.price }}</p>
+                {% else %}
+                <p class="text-3xl md:text-4xl font-bold text-black">${{ post.price }}</p>
+                {% endif %}
+            </div>
+
+
+            <!-- Tags (if exist) -->
+            {% if post.Tag.all %}
+            <div class="mb-6">
+                <p class="text-sm font-semibold text-black mb-3">Tags:</p>
+                <div class="flex flex-wrap gap-2">
+                    {% for tag in post.Tag.all %}
+                    <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">{{ tag.caption }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Quantity Selector -->
+            <div class="mb-6">
+                <p class="text-sm font-semibold text-black mb-3">Quantity</p>
+                <div class="flex items-center gap-4">
+                    <button id="decreaseQty" class="w-10 h-10 border-2 border-gray-300 rounded flex items-center justify-center hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-minus text-gray-700"></i>
+                    </button>
+                    <input type="number" id="quantity" value="1" min="1" class="w-16 text-center text-lg font-semibold border-2 border-gray-300 rounded focus:outline-none focus:border-black">
+                    <button id="increaseQty" class="w-10 h-10 border-2 border-gray-300 rounded flex items-center justify-center hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-plus text-gray-700"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Add to Cart Form -->
+            <form action="{% url 'add-to-cart' %}" method="POST" id="addToCartForm" class="mb-4">
+                {% csrf_token %}
+                <input type="hidden" name="post_id" value="{{ post.id }}">
+                <input type="hidden" name="quantity" id="formQuantity" value="1">
+                <button type="submit" class="w-full py-4 bg-black text-white font-semibold hover:bg-gray-900 transition-colors rounded-lg mb-3">
+                    ADD TO CART
+                </button>
+            </form>
+
+            <!-- Wishlist -->
+            <div class="mb-6">
+                <form action="{% url 'wish-list' %}" method="POST" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                    <button type="submit" class="flex items-center gap-2 text-gray-600 hover:text-black transition-colors">
+                        <i class="fas fa-heart"></i>
+                        <span>Add to Wishlist</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Vendor Information -->
+            <div class="border-t border-gray-200 pt-6 mb-6">
+                <div class="space-y-2 text-sm text-gray-600">
+                    <p><span class="font-semibold">Vendor:</span> Resin River</p>
+                    <p><span class="font-semibold">Type:</span> {% if post.Category %}{{ post.Category.name }}{% else %}Product{% endif %}</p>
+                    <p><span class="font-semibold">SKU:</span> {{ post.slug|upper }}</p>
+                </div>
+            </div>
+
         </div>
-      </a>
     </div>
-    {% endfor %}
-  </div>
+</section>
+
+<!-- Description and FAQs Section -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-gray-200">
+    <div class="mb-8">
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-200 mb-6">
+            <button class="tab-btn active px-6 py-3 font-semibold text-black border-b-2 border-black" data-tab="description">
+                DESCRIPTION
+            </button>
+            <button class="tab-btn px-6 py-3 font-semibold text-gray-500 hover:text-black" data-tab="faqs">
+                FAQS
+            </button>
+        </div>
+
+        <!-- Description Content -->
+        <div id="description-tab" class="tab-content">
+            <div class="prose max-w-none">
+                {% if post.description %}
+                <p class="text-gray-600 mb-4 whitespace-pre-line">{{ post.description }}</p>
+                {% else %}
+                <p class="text-gray-600">No description available for this product.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- FAQs Content -->
+        <div id="faqs-tab" class="tab-content hidden">
+            <h2 class="text-2xl md:text-3xl font-bold text-black mb-2">FAQS</h2>
+            <p class="text-gray-600 mb-6">Have a question? We are here to help.</p>
+            <p class="text-gray-600">Please contact us for any questions about this product.</p>
+        </div>
+    </div>
+</section>
+
+<!-- You May Also Like Section -->
+{% if related_items %}
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-gray-200">
+    <h2 class="text-2xl md:text-3xl font-bold text-black mb-8">YOU MAY ALSO LIKE</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        {% for item in related_items %}
+        <div class="group relative">
+            <a href="{% url 'item-details' item.slug %}" class="block">
+                <div class="relative overflow-hidden bg-gray-50 rounded-lg aspect-square mb-3">
+                    {% if item.image1 %}
+                    <img src="{{ item.image1.url }}" alt="{{ item.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    {% endif %}
+                    <form action="{% url 'wish-list' %}" method="POST" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {% csrf_token %}
+                        <input type="hidden" name="post_id" value="{{ item.id }}">
+                        <button type="submit" class="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white">
+                            <i class="fas fa-heart text-gray-700"></i>
+                        </button>
+                    </form>
+                </div>
+                <h3 class="font-semibold text-black mb-1">{{ item.name|upper }}</h3>
+                <p class="text-sm font-bold text-black">
+                    {% if item.sale_price %}
+                    From ${{ item.sale_price }}
+                    {% else %}
+                    From ${{ item.price }}
+                    {% endif %}
+                </p>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Recently Viewed Section -->
+{% if recently_viewed_items %}
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-gray-200">
+    <h2 class="text-2xl md:text-3xl font-bold text-black mb-8">RECENTLY VIEWED</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        {% for item in recently_viewed_items %}
+        <div class="group relative">
+            <a href="{% url 'item-details' item.slug %}" class="block">
+                <div class="relative overflow-hidden bg-gray-50 rounded-lg aspect-square mb-3">
+                    {% if item.image1 %}
+                    <img src="{{ item.image1.url }}" alt="{{ item.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    {% endif %}
+                </div>
+                <h3 class="font-semibold text-black mb-1">{{ item.name|upper }}</h3>
+                <p class="text-sm font-bold text-black">${{ item.price }}</p>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Sticky Bottom Bar (Mobile) -->
+<div id="stickyBar" class="fixed bottom-0 left-0 right-0 bg-black text-white p-4 z-50 lg:hidden hidden">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold truncate">{{ post.name|upper }}</p>
+            <p class="text-sm">${{ post.price }}</p>
+        </div>
+        <form action="{% url 'add-to-cart' %}" method="POST" class="ml-4">
+            {% csrf_token %}
+            <input type="hidden" name="post_id" value="{{ post.id }}">
+            <input type="hidden" name="quantity" id="stickyQuantity" value="1">
+            <button type="submit" class="px-6 py-2 bg-white text-black font-semibold rounded hover:bg-gray-100 transition-colors whitespace-nowrap">
+                ADD TO CART
+            </button>
+        </form>
+    </div>
 </div>
+
+<style>
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+</style>
 
 <script>
-  function changeMainImage(src) {
-    const el = document.getElementById('mainImage');
-    if (!el) return;
-    el.src = src;
-  }
+    // Image Gallery Functionality
+    const images = [
+        {% if post.image1 %}'{{ post.image1.url }}',{% endif %}
+        {% if post.image2 %}'{{ post.image2.url }}',{% endif %}
+        {% if post.image3 %}'{{ post.image3.url }}',{% endif %}
+    ].filter(Boolean);
+    
+    let currentImageIndex = 0;
+    const mainImage = document.getElementById('mainImage');
+    const thumbnailButtons = document.querySelectorAll('.thumbnail-btn');
+    
+    function updateMainImage(index) {
+        if (images.length === 0) return;
+        currentImageIndex = index;
+        mainImage.src = images[currentImageIndex];
+        
+        // Update thumbnail borders
+        thumbnailButtons.forEach((btn, i) => {
+            if (i === currentImageIndex) {
+                btn.classList.remove('border-transparent', 'border-gray-300');
+                btn.classList.add('border-black');
+            } else {
+                btn.classList.remove('border-black');
+                btn.classList.add('border-transparent');
+            }
+        });
+    }
+    
+    // Thumbnail click handlers
+    thumbnailButtons.forEach((btn, index) => {
+        btn.addEventListener('click', () => updateMainImage(index));
+    });
+    
+    // Navigation arrows
+    document.getElementById('prevImage')?.addEventListener('click', () => {
+        if (images.length > 0) {
+            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+            updateMainImage(currentImageIndex);
+        }
+    });
+    
+    document.getElementById('nextImage')?.addEventListener('click', () => {
+        if (images.length > 0) {
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            updateMainImage(currentImageIndex);
+        }
+    });
+    
+    // Quantity Selector
+    const quantityInput = document.getElementById('quantity');
+    const formQuantity = document.getElementById('formQuantity');
+    const stickyQuantity = document.getElementById('stickyQuantity');
+    
+    document.getElementById('increaseQty')?.addEventListener('click', () => {
+        const current = parseInt(quantityInput.value) || 1;
+        quantityInput.value = current + 1;
+        formQuantity.value = quantityInput.value;
+        stickyQuantity.value = quantityInput.value;
+    });
+    
+    document.getElementById('decreaseQty')?.addEventListener('click', () => {
+        const current = parseInt(quantityInput.value) || 1;
+        if (current > 1) {
+            quantityInput.value = current - 1;
+            formQuantity.value = quantityInput.value;
+            stickyQuantity.value = quantityInput.value;
+        }
+    });
+    
+    quantityInput?.addEventListener('change', function() {
+        const value = Math.max(1, parseInt(this.value) || 1);
+        this.value = value;
+        formQuantity.value = value;
+        stickyQuantity.value = value;
+    });
+    
+    // Tab Switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tab = this.dataset.tab;
+            
+            // Update button states
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active', 'border-black', 'text-black');
+                b.classList.add('text-gray-500');
+            });
+            this.classList.add('active', 'border-black', 'text-black');
+            this.classList.remove('text-gray-500');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(tab + '-tab').classList.remove('hidden');
+        });
+    });
+    
+    
+    // Show/hide sticky bar on scroll (mobile only)
+    const stickyBar = document.getElementById('stickyBar');
+    if (stickyBar && window.innerWidth < 1024) {
+        window.addEventListener('scroll', function() {
+            const currentScroll = window.pageYOffset;
+            if (currentScroll > 200) {
+                stickyBar.classList.remove('hidden');
+            } else {
+                stickyBar.classList.add('hidden');
+            }
+        });
+    }
 </script>
+</div>
 {% endblock content %}

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status Update</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #000;
+            margin: 0;
+            font-size: 28px;
+        }
+        .status-update {
+            background-color: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin-bottom: 30px;
+        }
+        .order-info {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #000;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ site_name }}</h1>
+            <p>Order Status Update</p>
+        </div>
+        
+        <div class="status-update">
+            <h2 style="margin-top: 0;">Order #{{ order.order_number }} - {{ order.get_status_display }}</h2>
+            <p>Your order status has been updated.</p>
+        </div>
+        
+        <div class="order-info">
+            <h2>Order Information</h2>
+            <p><strong>Order Number:</strong> {{ order.order_number }}</p>
+            <p><strong>Current Status:</strong> {{ order.get_status_display }}</p>
+            {% if order.shipped_at %}
+            <p><strong>Shipped On:</strong> {{ order.shipped_at|date:"F d, Y g:i A" }}</p>
+            {% endif %}
+            {% if order.delivered_at %}
+            <p><strong>Delivered On:</strong> {{ order.delivered_at|date:"F d, Y g:i A" }}</p>
+            {% endif %}
+        </div>
+        
+        {% if order.status == 'shipped' %}
+        <p>Your order has been shipped! You should receive it soon.</p>
+        {% elif order.status == 'delivered' %}
+        <p>Your order has been delivered! We hope you enjoy your purchase.</p>
+        {% endif %}
+        
+        {% if order.user %}
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="{{ site_url }}/orders/{{ order.id }}/" class="button">View Order Details</a>
+        </div>
+        {% endif %}
+        
+        <div class="footer">
+            <p>If you have any questions about your order, please contact us.</p>
+            <p>&copy; {{ order.updated_at|date:"Y" }} {{ site_name }}. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+

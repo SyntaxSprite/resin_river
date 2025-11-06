@@ -2,43 +2,108 @@
 {% block title %}Sign up{% endblock %}
 
 {% block content %}
-<div class="w-1/2 my-6 mx-auto p-6 bg-gray-100 rounded-xl">
-    <h1 class="mb-6 text-3xl">Sign up</h1>
+<div class="w-full max-w-md my-6 mx-auto p-6 bg-gray-100 rounded-xl">
+    <h1 class="mb-6 text-3xl font-bold">Sign up</h1>
 
-    <form method="post" action="{% url "sign-up" %}">
+    <form method="post" action="{% url "sign-up" %}" id="signup-form" novalidate>
         {% csrf_token %}
 
-        <div class="mb-3">
-            <label class="inline-block mb-2">Username</label><br>
+        <div class="mb-4">
+            <label for="{{ form.username.id_for_label }}" class="block mb-2 font-medium">Username</label>
             {{ form.username }}
+            <span class="text-red-600 text-sm hidden" id="username-error"></span>
         </div>
 
-        <div class="mb-3">
-            <label class="inline-block mb-2">Email</label><br>
+        <div class="mb-4">
+            <label for="{{ form.email.id_for_label }}" class="block mb-2 font-medium">Email</label>
             {{ form.email }}
+            <span class="text-red-600 text-sm hidden" id="email-error"></span>
         </div>
 
-        <div class="mb-3">
-            <label class="inline-block mb-2">Password</label><br>
+        <div class="mb-4">
+            <label for="{{ form.password1.id_for_label }}" class="block mb-2 font-medium">Password</label>
             {{ form.password1 }}
+            <span class="text-gray-600 text-xs mt-1">Must be at least 8 characters long.</span>
+            <span class="text-red-600 text-sm hidden" id="password1-error"></span>
         </div>
 
-        <div class="mb-3">
-            <label class="inline-block mb-2">Repeat password</label><br>
+        <div class="mb-4">
+            <label for="{{ form.password2.id_for_label }}" class="block mb-2 font-medium">Repeat password</label>
             {{ form.password2 }}
+            <span class="text-red-600 text-sm hidden" id="password2-error"></span>
         </div>
 
         {% if form.errors or form.non_field_errors %}
-            <div class="mb-3 p-6 bg-red-100 rounded-xl">
+            <div class="mb-4 p-4 bg-red-100 rounded-xl border border-red-300" role="alert">
                 {% for field in form %}
-                    {{ field.errors }}
+                    {% if field.errors %}
+                        <p class="text-red-700 text-sm mb-1">{{ field.label }}: {{ field.errors|first }}</p>
+                    {% endif %}
                 {% endfor %}
-
-                {{ form.non_field_errors }}
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <p class="text-red-700 text-sm mb-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
             </div>
         {% endif %}
 
-        <button class="py-4 px-8 text-lg bg-teal-500 hover:bg-teal-700 rounded-xl text-white">Submit</button>
+        <button type="submit" class="w-full py-4 px-8 text-lg bg-teal-500 hover:bg-teal-700 rounded-xl text-white font-semibold transition-colors">Submit</button>
     </form>
 </div>
+
+<script>
+document.getElementById('signup-form').addEventListener('submit', function(e) {
+    let isValid = true;
+    
+    // Username validation
+    const username = document.getElementById('{{ form.username.id_for_label }}').value.trim();
+    const usernameError = document.getElementById('username-error');
+    if (username.length < 3) {
+        usernameError.textContent = 'Username must be at least 3 characters long.';
+        usernameError.classList.remove('hidden');
+        isValid = false;
+    } else {
+        usernameError.classList.add('hidden');
+    }
+    
+    // Email validation
+    const email = document.getElementById('{{ form.email.id_for_label }}').value.trim();
+    const emailError = document.getElementById('email-error');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        emailError.textContent = 'Please enter a valid email address.';
+        emailError.classList.remove('hidden');
+        isValid = false;
+    } else {
+        emailError.classList.add('hidden');
+    }
+    
+    // Password validation
+    const password1 = document.getElementById('{{ form.password1.id_for_label }}').value;
+    const password1Error = document.getElementById('password1-error');
+    if (password1.length < 8) {
+        password1Error.textContent = 'Password must be at least 8 characters long.';
+        password1Error.classList.remove('hidden');
+        isValid = false;
+    } else {
+        password1Error.classList.add('hidden');
+    }
+    
+    // Password match validation
+    const password2 = document.getElementById('{{ form.password2.id_for_label }}').value;
+    const password2Error = document.getElementById('password2-error');
+    if (password1 !== password2) {
+        password2Error.textContent = 'Passwords do not match.';
+        password2Error.classList.remove('hidden');
+        isValid = false;
+    } else {
+        password2Error.classList.add('hidden');
+    }
+    
+    if (!isValid) {
+        e.preventDefault();
+    }
+});
+</script>
 {% endblock %}
